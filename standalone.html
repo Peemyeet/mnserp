@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ERP MNS — แดชบอร์ดงาน</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['"Noto Sans Thai"', "system-ui", "sans-serif"] },
+            boxShadow: {
+              card: "0 1px 3px rgb(15 23 42 / 0.08), 0 8px 24px rgb(15 23 42 / 0.06)",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside
+        class="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white shadow-sm"
+      >
+        <div
+          class="flex h-16 items-center gap-3 border-b border-slate-100 px-5"
+        >
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-500/25"
+          >
+            M
+          </div>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-slate-900">ERP MNS</p>
+            <p class="truncate text-xs text-slate-500">แดชบอร์ดงาน</p>
+          </div>
+        </div>
+        <nav class="flex flex-1 flex-col gap-1 overflow-y-auto p-3 text-sm">
+          <p
+            class="px-3 pt-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400"
+          >
+            เมนูหลัก
+          </p>
+          <a
+            href="#"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
+            >หน้าหลัก</a
+          >
+          <a
+            href="#"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
+            >ผู้ใช้งาน</a
+          >
+          <a
+            href="#"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
+            >คลังสินค้า</a
+          >
+          <a
+            href="#"
+            class="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
+            ><span>แชท</span
+            ><span
+              class="rounded-full bg-rose-500 px-2 py-0.5 text-xs font-semibold text-white"
+              >10</span
+            ></a
+          >
+          <a
+            href="#"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
+            >รายงาน</a
+          >
+          <a
+            href="#"
+            class="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
+            ><span>เอกสาร</span
+            ><span
+              class="rounded-full bg-rose-500 px-2 py-0.5 text-xs font-semibold text-white"
+              >220</span
+            ></a
+          >
+        </nav>
+        <div class="border-t border-slate-100 p-3">
+          <a
+            href="#"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-rose-600 hover:bg-rose-50"
+            >ออกจากระบบ</a
+          >
+        </div>
+      </aside>
+
+      <div class="flex min-w-0 flex-1 flex-col">
+        <header
+          class="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/90 px-6 py-4 backdrop-blur-md"
+        >
+          <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div>
+              <p class="text-sm font-medium text-indigo-600">
+                สวัสดีครับ ยินดีต้อนรับกลับมา
+              </p>
+              <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+                ภาพรวมงาน
+              </h1>
+              <p id="today" class="mt-1 text-sm text-slate-500"></p>
+            </div>
+            <button
+              type="button"
+              class="relative flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:border-indigo-200"
+              aria-label="การแจ้งเตือน"
+            >
+              <span class="text-lg">🔔</span>
+              <span
+                class="absolute right-2 top-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white"
+              ></span>
+            </button>
+          </div>
+        </header>
+
+        <main class="flex-1 space-y-8 p-6">
+          <section>
+            <h2 class="text-base font-semibold text-slate-900">สรุปจำนวนงาน</h2>
+            <p class="mt-1 text-sm text-slate-500">
+              ดูภาพรวมการจ่ายงานและสถานะยกเลิกได้ในที่เดียว
+            </p>
+            <div
+              id="summary-cards"
+              class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+            ></div>
+          </section>
+
+          <section
+            class="rounded-2xl border border-slate-200 bg-white shadow-card"
+          >
+            <div
+              class="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <h2 class="text-lg font-semibold text-slate-900">
+                  สถานะงานตามขั้นตอน
+                </h2>
+                <p id="pipeline-intro" class="mt-1 text-sm text-slate-500"></p>
+              </div>
+              <label class="relative block sm:w-72">
+                <span class="sr-only">ค้นหา</span>
+                <input
+                  id="search"
+                  type="search"
+                  placeholder="ค้นหาขั้นตอน..."
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 pl-4 pr-3 text-sm outline-none focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-500/15"
+                />
+              </label>
+            </div>
+            <ul id="workflow-list" class="divide-y divide-slate-100"></ul>
+            <p
+              id="workflow-empty"
+              class="hidden p-8 text-center text-sm text-slate-500"
+            >
+              ไม่พบขั้นตอนที่ตรงกับคำค้น
+            </p>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const summaryStats = [
+        { id: "total", label: "JOB ทั้งหมด", value: 2057, hint: "จำนวนงานในระบบทั้งหมด", grad: "from-violet-500 to-indigo-600", dot: "bg-violet-200 ring-violet-500/20" },
+        { id: "assigned", label: "จ่ายงานแล้ว", value: 1116, hint: "มอบหมายให้ทีมแล้ว", grad: "from-teal-500 to-emerald-600", dot: "bg-teal-200 ring-teal-500/20" },
+        { id: "unassigned", label: "ยังไม่จ่ายงาน", value: 941, hint: "รอมอบหมายผู้รับผิดชอบ", grad: "from-amber-500 to-orange-600", dot: "bg-amber-200 ring-amber-500/20" },
+        { id: "cancelled", label: "ยกเลิกงาน", value: 0, hint: "งานที่ถูกยกเลิก", grad: "from-rose-500 to-red-600", dot: "bg-rose-200 ring-rose-500/20" },
+      ];
+      const workflowStages = [
+        { code: "N01", title: "รับงาน", description: "บันทึกข้อมูลงานที่เข้ามา", count: 0 },
+        { code: "N02", title: "ออกแบบตรวจเช็ค", description: "หัวหน้าช่างมอบหมายงานตรวจสอบ ออกแบบ หรือผลิต", count: 7 },
+        { code: "N03", title: "ขอข้อมูลเพิ่มเติมฝ่ายขาย", description: "ช่างขอรายละเอียดเพิ่มจากฝ่ายขาย", count: 0 },
+        { code: "N04", title: "หาราคาอะไหล่", description: "ขอและกรอกราคาอะไหล่", count: 0 },
+        { code: "N05", title: "หาราคาเสร็จสิ้น", description: "รวบรวมราคาอะไหล่ครบแล้ว", count: 6 },
+        { code: "N06", title: "รอเสนอราคา", description: "เตรียมเอกสารใบเสนอราคาให้ลูกค้า", count: 0 },
+        { code: "N07", title: "รอ PO ลูกค้า", description: "ส่งใบเสนอราคาแล้ว รอลูกค้าอนุมัติ/PO", count: 16 },
+        { code: "N08", title: "PO มาแล้ว", description: "ลูกค้าอนุมัติซ่อม/งานแล้ว", count: 2 },
+        { code: "N09", title: "เปิด PR", description: "ขออนุมัติซื้ออะไหล่ (ใบขอซื้อ)", count: 3 },
+        { code: "N10", title: "เปิด PO จัดซื้อ", description: "PR อนุมัติแล้ว เปิด PO สั่งซื้อสินค้า", count: 0 },
+        { code: "N11", title: "รอบัญชีชำระเงิน", description: "กรอกเลข PO / I-money แล้ว รอบัญชีชำระ (เงินสด เช็ค โอน เครดิต)", count: 0 },
+        { code: "N12", title: "รอรับของ (อะไหล่)", description: "ชำระเงินแล้ว สั่งจากซัพพลายเออร์ รอของเข้า", count: 0 },
+        { code: "N13", title: "ของมาแล้ว", description: "ซัพพลายส่งของแล้ว คลังรับของ ช่างเบิกได้", count: 0 },
+        { code: "N14", title: "ดำเนินการผลิต (อะไหล่มาครบ)", description: "ช่างได้รับอะไหล่ครบแล้ว กำลังดำเนินการ", count: 1 },
+        { code: "N15", title: "ซ่อมเสร็จแล้ว", description: "ช่างซ่อม/ผลิตเสร็จแล้ว", count: 1 },
+        { code: "N16", title: "ส่งของเทส", description: "ฝ่ายขายนำงานไปทดสอบให้ลูกค้า (อ้างอิงใบส่งของ)", count: 0 },
+        { code: "N17", title: "รอเก็บเงิน", description: "กรอกเลขบิลและใบกำกับภาษี", count: 7 },
+        { code: "N17.1", title: "เก็บเงินเรียบร้อย", description: "เก็บเงินเรียบร้อย", count: 887 },
+        { code: "WH", title: "เข้าคลัง", description: "เก็บของเข้าคลัง", count: 0 },
+        { code: "N18", title: "ปิดงาน", description: "กรอกเลขใบเสร็จ (งานสิ้นสุด)", count: 339 },
+        { code: "N19", title: "ยกเลิก-คืนงาน", description: "ลูกค้าไม่ซ่อมหรือครบกำหนด (อ้างอิงใบส่งคืน)", count: 785 },
+        { code: "CL", title: "เคลม", description: "สถานะแจ้งเคลม", count: 0 },
+        { code: "N16.1", title: "ทดสอบไม่ผ่าน", description: "ผลทดสอบไม่ผ่าน", count: 0 },
+        { code: "N16.2", title: "ทดสอบผ่าน", description: "ผลทดสอบผ่าน", count: 2 },
+      ];
+      const totalJobs = summaryStats[0].value;
+      const fmt = (n) => new Intl.NumberFormat("th-TH").format(n);
+      document.getElementById("today").textContent = new Intl.DateTimeFormat("th-TH", {
+        weekday: "long", day: "numeric", month: "long", year: "numeric",
+      }).format(new Date());
+
+      const totalBase = summaryStats[0].value || 1;
+      const summaryEl = document.getElementById("summary-cards");
+      summaryStats.forEach((s) => {
+        const pct = Math.min(100, (s.value / totalBase) * 100);
+        summaryEl.insertAdjacentHTML(
+          "beforeend",
+          `<article class="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-200/60 transition hover:-translate-y-0.5">
+            <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${s.grad} opacity-[0.12] blur-2xl"></div>
+            <div class="relative flex flex-col gap-3">
+              <div class="flex justify-end"><span class="h-2 w-2 rounded-full ${s.dot} ring-4" title="${s.hint}"></span></div>
+              <p class="text-3xl font-bold tabular-nums text-slate-900">${fmt(s.value)}</p>
+              <div>
+                <h3 class="text-sm font-semibold text-slate-800">${s.label}</h3>
+                <p class="mt-1 text-xs leading-relaxed text-slate-500">${s.hint}</p>
+              </div>
+              <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                <div class="h-full rounded-full bg-gradient-to-r ${s.grad}" style="width:${s.id === "total" ? 100 : pct}%"></div>
+              </div>
+            </div>
+          </article>`
+        );
+      });
+
+      const pipelineTotal = workflowStages.reduce((a, x) => a + x.count, 0);
+      document.getElementById("pipeline-intro").innerHTML =
+        `งานทั้งหมดในระบบ <span class="font-medium text-slate-700">${fmt(totalJobs)}</span> งาน · รวมที่แสดงในขั้นตอน <span class="font-medium text-slate-700">${fmt(pipelineTotal)}</span> งาน`;
+
+      function pctOfTotal(count) {
+        return totalJobs <= 0 ? 0 : Math.round((count / totalJobs) * 100);
+      }
+      function renderWorkflow(filter) {
+        const q = (filter || "").trim().toLowerCase();
+        const list = q
+          ? workflowStages.filter(
+              (s) =>
+                s.code.toLowerCase().includes(q) ||
+                s.title.toLowerCase().includes(q) ||
+                s.description.toLowerCase().includes(q)
+            )
+          : workflowStages;
+        const ul = document.getElementById("workflow-list");
+        const empty = document.getElementById("workflow-empty");
+        ul.innerHTML = "";
+        if (list.length === 0) {
+          empty.classList.remove("hidden");
+          return;
+        }
+        empty.classList.add("hidden");
+        list.forEach((stage) => {
+          const pct = pctOfTotal(stage.count);
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:p-5">
+              <div class="min-w-0 flex-1">
+                <h3 class="text-[15px] font-semibold leading-snug text-slate-900">${stage.code}. ${stage.title}</h3>
+                <p class="mt-1 text-sm leading-relaxed text-slate-500">${stage.description}</p>
+              </div>
+              <div class="flex w-full shrink-0 flex-col items-stretch sm:w-56 sm:items-end">
+                <div class="flex items-baseline justify-end gap-4">
+                  <span class="text-sm tabular-nums text-slate-400">${pct}%</span>
+                  <span class="text-lg font-semibold tabular-nums text-slate-900">${fmt(stage.count)}</span>
+                </div>
+                <div class="mt-3 h-2 w-full max-w-[14rem] overflow-hidden rounded-full bg-slate-100 sm:ml-auto" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
+                  <div class="h-full rounded-full bg-[#26C6DA]" style="width:${pct}%"></div>
+                </div>
+              </div>
+            </div>`;
+          ul.appendChild(li);
+        });
+      }
+      document.getElementById("search").addEventListener("input", (e) => {
+        renderWorkflow(e.target.value);
+      });
+      renderWorkflow("");
+    </script>
+  </body>
+</html>
