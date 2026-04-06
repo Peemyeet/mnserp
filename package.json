@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build && node -e \"require('fs').copyFileSync('dist/index.html','dist/404.html')\"",
-    "preview": "vite preview --base /mnserp/"
+    "preview": "vite preview",
+    "preview:gh": "vite build && vite preview --base /mnserp/"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

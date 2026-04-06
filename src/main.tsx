@@ -1,6 +1,6 @@
-import { StrictMode } from "react";
+import { StrictMode, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, HashRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
@@ -10,16 +10,34 @@ import { ItSupportProvider } from "./context/ItSupportContext";
 import { JobsProvider } from "./context/JobsContext";
 import { OrgSettingsProvider } from "./context/OrgSettingsContext";
 
-/** ต้องสอดคล้องกับ `base` ใน vite.config (เช่น repo `mnserp` → /mnserp/) */
-const routerBasename = (() => {
-  const base = import.meta.env.BASE_URL;
-  const trimmed = base.endsWith("/") ? base.slice(0, -1) : base;
-  return trimmed === "" ? undefined : trimmed;
+const baseUrl = import.meta.env.BASE_URL;
+
+/**
+ * GitHub Pages โปรเจกต์ — React Router แนะนำ HashRouter เพราะไม่ต้องพึ่ง
+ * server rewrite ของ path (แก้หน้าขาวจาก history ไม่ตรง base)
+ */
+const useHashRouter =
+  import.meta.env.PROD && baseUrl !== "/" && baseUrl !== "./";
+
+const browserBasename = (() => {
+  if (useHashRouter) return undefined;
+  const trimmed = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+  if (trimmed === "" || trimmed === "/") return undefined;
+  return trimmed;
 })();
+
+function AppRouter({ children }: { children: ReactNode }) {
+  if (useHashRouter) {
+    return <HashRouter>{children}</HashRouter>;
+  }
+  return (
+    <BrowserRouter basename={browserBasename}>{children}</BrowserRouter>
+  );
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter basename={routerBasename}>
+    <AppRouter>
       <AuthProvider>
         <ItSupportProvider>
           <JobsProvider>
@@ -33,6 +51,6 @@ createRoot(document.getElementById("root")!).render(
           </JobsProvider>
         </ItSupportProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </AppRouter>
   </StrictMode>
 );
