@@ -10,7 +10,7 @@ import { ItSupportProvider } from "./context/ItSupportContext";
 import { JobsProvider } from "./context/JobsContext";
 import { OrgSettingsProvider } from "./context/OrgSettingsContext";
 
-/** ต้องสอดคล้องกับ `base` ใน vite.config (GitHub Pages โฟลเดอร์โปรเจกต์) */
+/** ต้องสอดคล้องกับ `base` ใน vite.config (เช่น repo `mnserp` → /mnserp/) */
 const routerBasename = (() => {
   const base = import.meta.env.BASE_URL;
   const trimmed = base.endsWith("/") ? base.slice(0, -1) : base;
