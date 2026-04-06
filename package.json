@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "build": "tsc --noEmit && vite build && node -e \"require('fs').copyFileSync('dist/index.html','dist/404.html')\"",
+    "preview": "vite preview --base /MNSrepoDEMO/"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

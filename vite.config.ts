@@ -1,6 +1,8 @@
-import { defineConfig } from 'vite';
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
+/** GitHub Pages แบบ project site: https://<user>.github.io/<repo>/ */
 export default defineConfig({
-  base: '/MNSrepoDEMO/',
-  // other configuration options
+  plugins: [react()],
+  base: "/MNSrepoDEMO/",
 });
