@@ -13,25 +13,29 @@ export function SalesInputPage() {
   const [customerPO, setCustomerPO] = useState("");
   const [stage, setStage] = useState("N01");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!serviceNumber.trim() || !jobName.trim() || !customerName.trim()) {
       return;
     }
-    addJob({
-      serviceNumber: serviceNumber.trim(),
-      jobName: jobName.trim(),
-      customerName: customerName.trim(),
-      customerPO: customerPO.trim() || "-",
-      currentStageCode: stage,
-    });
-    setServiceNumber("");
-    setJobName("");
-    setCustomerName("");
-    setCustomerPO("");
-    setStage("N01");
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 2500);
+    try {
+      await addJob({
+        serviceNumber: serviceNumber.trim(),
+        jobName: jobName.trim(),
+        customerName: customerName.trim(),
+        customerPO: customerPO.trim() || "-",
+        currentStageCode: stage,
+      });
+      setServiceNumber("");
+      setJobName("");
+      setCustomerName("");
+      setCustomerPO("");
+      setStage("N01");
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
+    }
   };
 
   return (

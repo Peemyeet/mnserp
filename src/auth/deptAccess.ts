@@ -72,9 +72,30 @@ export function allowedWarehouseKinds(user: PmUser): WarehouseKind[] {
   return kinds.size > 0 ? [...kinds] : [];
 }
 
-/** เส้นทางหลังล็อกอินหรือเมื่อถูกบล็อก — หน้า `/` แสดงแดชบอร์ดรวมหรือแดชบอร์ดแผนกตามผู้ใช้ */
-export function defaultHomePath(_user: PmUser): string {
-  return "/";
+/**
+ * เส้นทาง "หน้าทำงาน" หลักตามผู้ใช้ — แผนกเดียวไปที่โฟลเดอร์งานของแผนกนั้นเลย;
+ * ผู้ดูแลระบบ / HQ / PMO ยังใช้ `/` (แดชบอร์ดรวม)
+ */
+export function defaultHomePath(user: PmUser): string {
+  if (hasFullDepartmentAccess(user)) {
+    return "/";
+  }
+  const ids = allowedDepartmentIds(user);
+  if (ids.length !== 1) {
+    return "/";
+  }
+  switch (ids[0]) {
+    case "sales":
+      return "/dept/sales/dashboard";
+    case "purchase":
+      return "/dept/purchase/work";
+    case "production":
+      return "/dept/production/work";
+    case "accounting":
+      return "/dept/accounting";
+    default:
+      return "/";
+  }
 }
 
 /**

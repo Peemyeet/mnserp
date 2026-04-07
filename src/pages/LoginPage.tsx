@@ -1,10 +1,32 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Lock, User } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { defaultHomePath } from "../auth/deptAccess";
+import {
+  AUTH_SESSION_STORAGE_KEY,
+  useAuth,
+} from "../context/AuthContext";
+import type { PmUser } from "../types/pmUser";
+
+function readSessionUser(): PmUser | null {
+  try {
+    const raw = sessionStorage.getItem(AUTH_SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { user?: PmUser };
+    if (!parsed?.user?.id || !parsed?.user?.username) return null;
+    return parsed.user;
+  } catch {
+    return null;
+  }
+}
+
+function resolveAfterLogin(from: string, user: PmUser | null): string {
+  if (from === "/" && user) return defaultHomePath(user);
+  return from;
+}
 
 export function LoginPage() {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, login, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const rawFrom = (location.state as { from?: string } | null)?.from;
@@ -17,10 +39,9 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, from, navigate]);
+    if (!isAuthenticated || !user) return;
+    navigate(resolveAfterLogin(from, user), { replace: true });
+  }, [isAuthenticated, user, from, navigate]);
 
   if (isAuthenticated) {
     return (
@@ -40,7 +61,8 @@ export function LoginPage() {
         setError(err);
         return;
       }
-      navigate(from, { replace: true });
+      const sessionUser = readSessionUser();
+      navigate(resolveAfterLogin(from, sessionUser), { replace: true });
     } finally {
       setSubmitting(false);
     }

@@ -8,6 +8,7 @@ import { CompaniesProvider } from "./context/CompaniesContext";
 import { CustomersProvider } from "./context/CustomersContext";
 import { ItSupportProvider } from "./context/ItSupportContext";
 import { JobsProvider } from "./context/JobsContext";
+import { MnsConnectionProvider } from "./context/MnsConnectionContext";
 import { OrgSettingsProvider } from "./context/OrgSettingsContext";
 
 const baseUrl = import.meta.env.BASE_URL;
@@ -38,19 +39,21 @@ function AppRouter({ children }: { children: ReactNode }) {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AppRouter>
-      <AuthProvider>
-        <ItSupportProvider>
-          <JobsProvider>
-            <CustomersProvider>
-              <CompaniesProvider>
-                <OrgSettingsProvider>
-                  <App />
-                </OrgSettingsProvider>
-              </CompaniesProvider>
-            </CustomersProvider>
-          </JobsProvider>
-        </ItSupportProvider>
-      </AuthProvider>
+      <MnsConnectionProvider>
+        <AuthProvider>
+          <ItSupportProvider>
+            <JobsProvider>
+              <CustomersProvider>
+                <CompaniesProvider>
+                  <OrgSettingsProvider>
+                    <App />
+                  </OrgSettingsProvider>
+                </CompaniesProvider>
+              </CustomersProvider>
+            </JobsProvider>
+          </ItSupportProvider>
+        </AuthProvider>
+      </MnsConnectionProvider>
     </AppRouter>
   </StrictMode>
 );

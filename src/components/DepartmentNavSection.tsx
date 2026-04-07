@@ -73,7 +73,11 @@ export function DepartmentNavSection({
             return (
               <li key={d.id}>
                 <NavLink
-                  to={`/dept/${d.id}`}
+                  to={
+                    d.id === "sales"
+                      ? "/dept/sales/dashboard"
+                      : `/dept/${d.id}`
+                  }
                   className="block no-underline"
                   onClick={() => setOpen(true)}
                 >

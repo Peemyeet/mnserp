@@ -5,9 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:all": "concurrently -k -n web,api -c cyan,magenta \"npm run dev\" \"npm run api:dev\"",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:setup": "npm run db:setup --prefix server",
+    "db:import-users": "npm run db:import-users --prefix server",
     "build": "tsc --noEmit && vite build && node -e \"require('fs').copyFileSync('dist/index.html','dist/404.html')\"",
     "preview": "vite preview",
-    "preview:gh": "vite build && vite preview --base /mnserp/"
+    "preview:gh": "vite build && vite preview --base /mnserp/",
+    "api": "npm run start --prefix server",
+    "api:dev": "npm run dev --prefix server"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -17,6 +24,7 @@
     "recharts": "^2.15.0"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",

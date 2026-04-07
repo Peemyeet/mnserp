@@ -26,20 +26,25 @@ export function CustomerSettingsPage() {
   const [frequency, setFrequency] = useState("0");
   const [detailNote, setDetailNote] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!companyName.trim() || !contactName.trim()) return;
-    addCustomer({
-      companyName: companyName.trim(),
-      contactName: contactName.trim(),
-      phone: phone.trim() || "-",
-      salesPersonName: salesPersonName.trim() || "-",
-      customerType: customerType.trim() || "-",
-      region,
-      grade,
-      frequency: Math.max(0, parseInt(frequency, 10) || 0),
-      detailNote: detailNote.trim() || undefined,
-    });
+    try {
+      await addCustomer({
+        companyName: companyName.trim(),
+        contactName: contactName.trim(),
+        phone: phone.trim() || "-",
+        salesPersonName: salesPersonName.trim() || "-",
+        customerType: customerType.trim() || "-",
+        region,
+        grade,
+        frequency: Math.max(0, parseInt(frequency, 10) || 0),
+        detailNote: detailNote.trim() || undefined,
+      });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
+      return;
+    }
     setCompanyName("");
     setContactName("");
     setPhone("");

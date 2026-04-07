@@ -8,7 +8,9 @@ import {
 import type { PmUser } from "../types/pmUser";
 import { loginWithPm } from "../services/pmAuthService";
 
-const SESSION_KEY = "erp-mns-session";
+/** ใช้ร่วมกับหน้า login เพื่อนำทางไป `defaultHomePath` หลังล็อกอิน */
+export const AUTH_SESSION_STORAGE_KEY = "erp-mns-session";
+const SESSION_KEY = AUTH_SESSION_STORAGE_KEY;
 const LEGACY_AUTH_KEY = "erp-mns-authenticated";
 
 function readSession(): { user: PmUser; accessToken?: string } | null {

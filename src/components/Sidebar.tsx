@@ -17,6 +17,7 @@ import {
 import {
   allowedDepartmentIds,
   canAccessDepartment,
+  defaultHomePath,
   hasFullDepartmentAccess,
 } from "../auth/deptAccess";
 import { receivesItAdminAlerts } from "../auth/itAdminAlerts";
@@ -59,9 +60,9 @@ export function Sidebar({
   const showSalesMenu = user ? canAccessDepartment(user, "sales") : true;
 
   return (
-    <aside className="print:hidden flex w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white shadow-sm">
+    <aside className="print:hidden flex h-screen min-h-0 w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white shadow-sm">
       <NavLink
-        to="/"
+        to={user ? defaultHomePath(user) : "/"}
         className="flex h-16 items-center gap-3 border-b border-slate-100 px-5 no-underline"
       >
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-500/25">
@@ -75,7 +76,7 @@ export function Sidebar({
         </div>
       </NavLink>
 
-      <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
         <button
           type="button"
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-600 transition hover:bg-slate-50"
@@ -99,7 +100,11 @@ export function Sidebar({
         <p className="px-3 pt-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
           เมนูหลัก
         </p>
-        <NavLink to="/" end className="block rounded-xl no-underline">
+        <NavLink
+          to={user ? defaultHomePath(user) : "/"}
+          end
+          className="block rounded-xl no-underline"
+        >
           {({ isActive }) => (
             <span
               className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
@@ -223,7 +228,7 @@ export function Sidebar({
         ))}
       </div>
 
-      <div className="border-t border-slate-100 p-3">
+      <div className="shrink-0 border-t border-slate-100 p-3">
         <button
           type="button"
           onClick={() => onOpenSettings?.()}

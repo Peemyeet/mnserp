@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { ChevronDown, LayoutGrid, Settings, Wrench } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useMnsConnection } from "../../context/MnsConnectionContext";
+import { mnsFetch } from "../../services/mnsApi";
+
+function waitPoDaysSinceModified(modified: string | undefined): number {
+  if (!modified?.trim()) return 0;
+  const d = new Date(modified.replace(" ", "T"));
+  if (Number.isNaN(d.getTime())) return 0;
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000));
+}
+
+const WAIT_PO_DAY_SPLIT = 60;
 
 type Tone = "red" | "orange" | "purple" | "teal";
 
@@ -66,15 +78,21 @@ function SubStatButton({
   count,
   tone,
   wide,
+  to,
 }: {
   label: string;
   count: number;
   tone: Tone;
   wide?: boolean;
+  to?: string;
 }) {
+  const navigate = useNavigate();
   return (
     <button
       type="button"
+      onClick={() => {
+        if (to) navigate(to);
+      }}
       className={`relative flex items-center justify-between gap-2 rounded-xl px-3 py-3 text-left text-xs font-semibold text-white shadow-md transition sm:text-sm ${toneClass[tone]} ${wide ? "col-span-2" : ""}`}
     >
       <span className="min-w-0 leading-tight">{label}</span>
@@ -141,36 +159,149 @@ function SalesStageCard({
 }
 
 export function SalesDeptDashboard() {
+  const conn = useMnsConnection();
+  const [qCounts, setQCounts] = useState({
+    receive: 0,
+    check: 0,
+    salesInfo: 0,
+    spare: 0,
+    priceDone: 0,
+  });
+
+  useEffect(() => {
+    if (!conn.ready || !conn.apiOk || !conn.db) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [r1, r2, r3, r4, r5] = await Promise.all(
+          [1, 2, 3, 4, 5].map((ws) =>
+            mnsFetch<{ rows?: unknown[] }>(`/jobs?job_status=${ws}&limit=1000`)
+          )
+        );
+        if (cancelled) return;
+        setQCounts({
+          receive: r1.rows?.length ?? 0,
+          check: r2.rows?.length ?? 0,
+          salesInfo: r3.rows?.length ?? 0,
+          spare: r4.rows?.length ?? 0,
+          priceDone: r5.rows?.length ?? 0,
+        });
+      } catch {
+        if (!cancelled) {
+          setQCounts({
+            receive: 0,
+            check: 0,
+            salesInfo: 0,
+            spare: 0,
+            priceDone: 0,
+          });
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [conn.ready, conn.apiOk, conn.db]);
+
+  const [waitPoCounts, setWaitPoCounts] = useState({
+    within60: 0,
+    over60: 0,
+  });
+
+  useEffect(() => {
+    if (!conn.ready || !conn.apiOk || !conn.db) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await mnsFetch<{ rows?: { modified?: string }[] }>(
+          `/jobs?job_status=7&limit=1000`
+        );
+        if (cancelled) return;
+        const rows = res.rows ?? [];
+        let within60 = 0;
+        let over60 = 0;
+        for (const r of rows) {
+          const days = waitPoDaysSinceModified(r.modified);
+          if (days <= WAIT_PO_DAY_SPLIT) within60++;
+          else over60++;
+        }
+        setWaitPoCounts({ within60, over60 });
+      } catch {
+        if (!cancelled) setWaitPoCounts({ within60: 0, over60: 0 });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [conn.ready, conn.apiOk, conn.db]);
+
+  const quotationTotal =
+    qCounts.receive +
+    qCounts.check +
+    qCounts.salesInfo +
+    qCounts.spare +
+    qCounts.priceDone;
+
   return (
     <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
       <SalesStageCard
         titleTh="เสนอราคา"
         titleEn="Quotation"
-        total={13}
+        total={quotationTotal}
         icon={Settings}
         theme="violet"
       >
-        <SubStatButton label="รับงาน" count={0} tone="red" />
-        <SubStatButton label="ตรวจเช็ค" count={7} tone="orange" />
-        <SubStatButton label="ขอข้อมูลฝ่ายขาย" count={0} tone="purple" />
-        <SubStatButton label="หาราคาอะไหล่" count={0} tone="teal" />
         <SubStatButton
-          label="หาราคาเครื่องสั่น"
-          count={6}
+          label="รับงาน"
+          count={qCounts.receive}
+          tone="red"
+          to="/dept/sales/quotation/receive"
+        />
+        <SubStatButton
+          label="ตรวจเช็ค"
+          count={qCounts.check}
+          tone="orange"
+          to="/dept/sales/quotation/check"
+        />
+        <SubStatButton
+          label="ขอข้อมูลฝ่ายขาย"
+          count={qCounts.salesInfo}
+          tone="purple"
+          to="/dept/sales/quotation/sales-info"
+        />
+        <SubStatButton
+          label="หาราคาอะไหล่"
+          count={qCounts.spare}
           tone="teal"
-          wide
+          to="/dept/sales/quotation/spare-price"
+        />
+        <SubStatButton
+          label="ราคาเสร็จสิ้น"
+          count={qCounts.priceDone}
+          tone="purple"
+          to="/dept/sales/quotation/price-done"
         />
       </SalesStageCard>
 
       <SalesStageCard
         titleTh="รอ PO ลูกค้า"
         titleEn="Wait PO"
-        total={16}
+        total={waitPoCounts.within60 + waitPoCounts.over60}
         icon={Wrench}
         theme="teal"
       >
-        <SubStatButton label="1-60 วัน" count={0} tone="orange" />
-        <SubStatButton label="60+ วัน" count={16} tone="red" />
+        <SubStatButton
+          label="1-60 วัน"
+          count={waitPoCounts.within60}
+          tone="orange"
+          to="/dept/sales/wait-po/within60"
+        />
+        <SubStatButton
+          label="60+ วัน"
+          count={waitPoCounts.over60}
+          tone="red"
+          to="/dept/sales/wait-po/over60"
+        />
       </SalesStageCard>
 
       <SalesStageCard
@@ -180,11 +311,27 @@ export function SalesDeptDashboard() {
         icon={LayoutGrid}
         theme="amber"
       >
-        <SubStatButton label="PO มาแล้ว" count={2} tone="red" />
-        <SubStatButton label="ระบบสั่งซื้อ" count={3} tone="orange" />
+        <SubStatButton
+          label="PO มาแล้ว"
+          count={2}
+          tone="red"
+          to="/dept/sales/po-arrived"
+        />
+        <SubStatButton
+          label="ระบบสั่งซื้อ"
+          count={3}
+          tone="orange"
+          to="/dept/sales/purchase-system"
+        />
         <SubStatButton label="ของมาแล้ว" count={0} tone="purple" />
         <SubStatButton label="ดำเนินการผลิต" count={1} tone="teal" />
-        <SubStatButton label="ซ่อมเสร็จแล้ว" count={1} tone="teal" wide />
+        <SubStatButton
+          label="ซ่อมเสร็จแล้ว"
+          count={1}
+          tone="teal"
+          wide
+          to="/dept/sales/repair-completed"
+        />
       </SalesStageCard>
 
       <SalesStageCard
@@ -222,6 +369,7 @@ const headerActionBtn =
   "inline-flex min-h-[42px] items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-white";
 
 export function SalesDeptHeaderActions() {
+  const navigate = useNavigate();
   const [openJobMenu, setOpenJobMenu] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -261,7 +409,10 @@ export function SalesDeptHeaderActions() {
               type="button"
               className="block w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50"
               role="menuitem"
-              onClick={() => setOpenJobMenu(false)}
+              onClick={() => {
+                setOpenJobMenu(false);
+                navigate("/dept/sales/work/job-sale");
+              }}
             >
               ใบงานขาย
             </button>
@@ -269,7 +420,10 @@ export function SalesDeptHeaderActions() {
               type="button"
               className="block w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50"
               role="menuitem"
-              onClick={() => setOpenJobMenu(false)}
+              onClick={() => {
+                setOpenJobMenu(false);
+                navigate("/dept/sales/work/job-repair");
+              }}
             >
               ใบงานซ่อม
             </button>
@@ -280,6 +434,7 @@ export function SalesDeptHeaderActions() {
       <button
         type="button"
         className={`${headerActionBtn} relative pr-3`}
+        onClick={() => navigate("/dept/sales/requirements")}
       >
         ความต้องการฝ่ายขาย
         <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white shadow-sm">

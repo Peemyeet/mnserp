@@ -1,0 +1,26 @@
+# MySQL สำหรับ ERP MNS — รันครั้งแรกจะ import database/db_mns.sql อัตโนมัติ
+#
+#   docker compose up -d
+#
+# จากนั้นตั้ง server/.env ให้ user/password ตรงด้านล่าง แล้ว npm run api หรือ npm run dev:all
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: mns_dev_root
+      MYSQL_DATABASE: db_mns
+    ports:
+      - "3306:3306"
+    volumes:
+      - mns_mysql_data:/var/lib/mysql
+      - ./database/docker-entrypoint/00-use-database.sql:/docker-entrypoint-initdb.d/00-use-database.sql:ro
+      - ./database/db_mns.sql:/docker-entrypoint-initdb.d/01-db_mns.sql:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mns_mysql_data:

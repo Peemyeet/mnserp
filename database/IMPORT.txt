@@ -1,0 +1,14 @@
+ไฟล์ db_mns.sql เป็นสำเนาจากโปรเจกต์ MNS (โครงสร้าง + ข้อมูลตัวอย่าง)
+
+นำเข้า MySQL/MariaDB:
+  mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS db_mns CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+  mysql -u root -p db_mns < database/db_mns.sql
+
+รัน API (พอร์ต 8787):
+  cd server && npm install && npm start
+
+รันเว็บ (พร็อกซี /api -> API):
+  จากโฟลเดอร์โปรเจกต์: npm run dev
+  อีกเทอร์มินัล: npm run api
+
+ตั้งค่าการเชื่อมต่อ: คัดลอก server/.env.example เป็น server/.env แล้วแก้รหัสผ่าน

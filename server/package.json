@@ -1,0 +1,17 @@
+{
+  "name": "erp-mns-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.mjs",
+    "dev": "node --watch index.mjs",
+    "db:setup": "node scripts/setup-database.mjs",
+    "db:import-users": "node scripts/import-users-csv.mjs"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0"
+  }
+}

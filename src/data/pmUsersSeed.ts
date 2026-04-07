@@ -38,6 +38,45 @@ export const PM_USERS_SEED: PmUserSeedRow[] = [
     },
   },
   {
+    username: "sale2",
+    password: "mns",
+    user: {
+      id: "pm-u-7",
+      pmUserId: "pm-u-7",
+      username: "sale2",
+      displayNameTh: "สมหญิง รักงาน",
+      email: "sale2@example.local",
+      roleCode: "sales",
+      departmentCode: "SALES",
+    },
+  },
+  {
+    username: "sale3",
+    password: "mns",
+    user: {
+      id: "pm-u-8",
+      pmUserId: "pm-u-8",
+      username: "sale3",
+      displayNameTh: "วิชัย ขยัน",
+      email: "sale3@example.local",
+      roleCode: "sales",
+      departmentCode: "SALES",
+    },
+  },
+  {
+    username: "sale4",
+    password: "mns",
+    user: {
+      id: "pm-u-9",
+      pmUserId: "pm-u-9",
+      username: "sale4",
+      displayNameTh: "นภา สดใส",
+      email: "sale4@example.local",
+      roleCode: "sales",
+      departmentCode: "SALES",
+    },
+  },
+  {
     username: "pm",
     password: "mns",
     user: {

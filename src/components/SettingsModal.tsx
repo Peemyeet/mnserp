@@ -16,7 +16,11 @@ const settingItems: SettingRow[] = [
     highlightTh: true,
     route: "/settings/customers",
   },
-  { th: "ตั้งค่าผู้ใช้", en: "User Setting" },
+  {
+    th: "ตั้งค่าผู้ใช้",
+    en: "User Setting",
+    route: "/settings/users",
+  },
   { th: "ตั้งค่าบัตรเครดิต", en: "Credit Setting" },
   {
     th: "ตั้งค่าฝ่าย",
