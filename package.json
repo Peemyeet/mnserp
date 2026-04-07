@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:all": "concurrently -k -n web,api -c cyan,magenta \"npm run dev\" \"npm run api:dev\"",
+    "setup": "bash scripts/dev-setup.sh",
+    "setup:docker": "bash scripts/dev-setup.sh --docker",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:setup": "npm run db:setup --prefix server",

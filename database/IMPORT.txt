@@ -1,6 +1,10 @@
 ไฟล์ db_mns.sql เป็นสำเนาจากโปรเจกต์ MNS (โครงสร้าง + ข้อมูลตัวอย่าง)
 
-นำเข้า MySQL/MariaDB:
+ติดตั้งแพ็กเกจ + สร้าง server/.env (ครั้งแรก):
+  npm run setup
+  หรือใช้ Docker MySQL ในครั้งเดียว: npm run setup:docker
+
+นำเข้า MySQL/MariaDB (ถ้าไม่ใช้ Docker หรือต้องการ import ใหม่):
   mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS db_mns CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
   mysql -u root -p db_mns < database/db_mns.sql
 
