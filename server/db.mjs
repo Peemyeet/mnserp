@@ -11,20 +11,38 @@ config({ path: path.join(__dirname, ".env"), override: false });
 let pool;
 
 /**
- * ประกอบ mysql:// จาก DB_* (cPanel แบบ B)
- * ถ้ามี DATABASE_URL=mysql:// จะใช้ก่อน — ถ้าเป็น postgresql:// แต่มี DB_* ครบจะใช้ DB_* แทน (ไม่ error)
+ * ประกอบ mysql:// จาก (ลำดับรองรับแบบแยกส่วน):
+ *   • Railway MySQL: MYSQLHOST, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE, MYSQLPORT
+ *   • cPanel / ทั่วไป: DB_HOST, DB_DATABASE, DB_USERNAME|DB_USER, DB_PASSWORD, DB_PORT
+ * ถ้ามี DATABASE_URL=mysql:// จะใช้ก่อน — ถ้าเป็น postgresql:// แต่มีค่า MySQL แยกส่วนครบจะใช้แยกส่วนแทน (ไม่ error)
  */
 export function buildMysqlDatabaseUrl() {
   const enc = encodeURIComponent;
+
+  const fromRailway = (() => {
+    const host = process.env.MYSQLHOST?.trim();
+    const database = process.env.MYSQLDATABASE?.trim();
+    const user = process.env.MYSQLUSER;
+    const password = process.env.MYSQLPASSWORD ?? "";
+    const port = process.env.MYSQLPORT?.trim() || "3306";
+    if (host && database && user !== undefined && user !== null) {
+      return `mysql://${enc(String(user))}:${enc(String(password))}@${host}:${port}/${enc(database)}`;
+    }
+    return null;
+  })();
+
   const host = process.env.DB_HOST?.trim();
   const database = process.env.DB_DATABASE?.trim();
   const user = process.env.DB_USERNAME ?? process.env.DB_USER;
   const password = process.env.DB_PASSWORD ?? "";
   const port = process.env.DB_PORT?.trim() || "3306";
-  const fromParts =
+  const fromDbParts =
     host && database && user !== undefined && user !== null
       ? `mysql://${enc(String(user))}:${enc(String(password))}@${host}:${port}/${enc(database)}`
       : null;
+
+  /** Railway มาก่อน DB_* ถ้ามีทั้งคู่ (บน Railway มักมีแค่ MYSQL*) */
+  const fromDiscrete = fromRailway ?? fromDbParts;
 
   const direct = process.env.DATABASE_URL?.trim();
   if (direct) {
@@ -33,18 +51,18 @@ export function buildMysqlDatabaseUrl() {
       return direct;
     }
     if (lower.startsWith("postgresql:") || lower.startsWith("postgres:")) {
-      if (fromParts) {
-        return fromParts;
+      if (fromDiscrete) {
+        return fromDiscrete;
       }
       if (process.env.NODE_ENV !== "production") {
         console.warn(
-          "[db] DATABASE_URL เป็น PostgreSQL และยังไม่มี DB_HOST + DB_DATABASE + DB_USERNAME — ลบหรือแก้เป็น mysql://",
+          "[db] DATABASE_URL เป็น PostgreSQL และยังไม่มี MYSQL* หรือ DB_HOST + DB_DATABASE + DB_USERNAME — ลบหรือแก้เป็น mysql://",
         );
       }
       return null;
     }
   }
-  return fromParts;
+  return fromDiscrete;
 }
 
 function createPool() {
@@ -53,8 +71,8 @@ function createPool() {
     const hasPg = process.env.DATABASE_URL?.trim()?.toLowerCase()?.startsWith("postgres");
     throw new Error(
       hasPg
-        ? "ยังเห็น postgresql:// — ลบใน server/.env หรือ unset DATABASE_URL ในเทอร์มินัล แล้วใส่ mysql:// หรือ DB_HOST+DB_DATABASE+DB_USERNAME (ดู server/.env.example)"
-        : "ยังไม่ได้ตั้ง MySQL — ใส่ DATABASE_URL=mysql://... หรือ DB_HOST + DB_DATABASE + DB_USERNAME + DB_PASSWORD (ดู server/.env.example)",
+        ? "ยังเห็น postgresql:// — ลบใน server/.env หรือ unset DATABASE_URL ในเทอร์มินัล แล้วใส่ mysql:// หรือ MYSQL* / DB_* (ดู server/.env.example)"
+        : "ยังไม่ได้ตั้ง MySQL — ใส่ DATABASE_URL=mysql://... หรือ MYSQLHOST+MYSQLDATABASE+MYSQLUSER+MYSQLPASSWORD (+MYSQLPORT) หรือ DB_* (ดู server/.env.example)",
     );
   }
   const u = new URL(urlStr);

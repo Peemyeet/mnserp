@@ -18,10 +18,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverDir = path.join(__dirname, "..");
 config({ path: path.join(serverDir, ".env"), override: true });
 
-/** มี mysql:// หรือ DB_* ครบสำหรับประกอบ URL จริง */
+/** มี mysql:// หรือ Railway MYSQL* / DB_* ครบสำหรับประกอบ URL จริง */
 function hasMysqlEnv() {
   const d = process.env.DATABASE_URL?.trim();
   if (d?.toLowerCase().startsWith("mysql:")) return true;
+  const rHost = process.env.MYSQLHOST?.trim();
+  const rDb = process.env.MYSQLDATABASE?.trim();
+  const rUser = process.env.MYSQLUSER;
+  if (rHost && rDb && rUser !== undefined && rUser !== null) return true;
   const host = process.env.DB_HOST?.trim();
   const database = process.env.DB_DATABASE?.trim();
   const user = process.env.DB_USERNAME ?? process.env.DB_USER;
@@ -41,7 +45,7 @@ if (offlineSafe && !hasMysqlEnv()) {
     '[prisma] ไม่มี MySQL ใน .env — ใช้ URL จำลองสำหรับ "' +
       sub.join(" ") +
       '" เท่านั้น (ไม่เชื่อมต่อฐาน)\n' +
-      "         คำสั่ง db push / migrate ต้องตั้ง DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD หรือ DATABASE_URL=mysql://...",
+      "         คำสั่ง db push / migrate ต้องตั้ง MYSQL* / DB_* หรือ DATABASE_URL=mysql://...",
   );
 }
 
@@ -49,8 +53,8 @@ const { buildMysqlDatabaseUrl } = await import("../db.mjs");
 const url = buildMysqlDatabaseUrl();
 if (!url) {
   console.error(
-    "ไม่พบการตั้งค่า MySQL — ใส่ DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD ใน server/.env\n" +
-      "หรือ DATABASE_URL=mysql://... (ดู server/.env.cpanel.example)",
+    "ไม่พบการตั้งค่า MySQL — ใส่ MYSQLHOST, MYSQLDATABASE, MYSQLUSER, MYSQLPASSWORD (+MYSQLPORT) หรือ DB_* ใน server/.env\n" +
+      "หรือ DATABASE_URL=mysql://... (ดู server/.env.example)",
   );
   process.exit(1);
 }
