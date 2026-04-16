@@ -11,7 +11,7 @@ export const APPROVAL_DOC_CATEGORIES: {
   order: number;
   labelTh: string;
   labelEn: string;
-  /** gradient การ์ด */
+  /** gradient การ์ด — badge ใช้เฉพาะหน้าเอกสาร (สร้าง); จำนวนรออนุมัติมาจาก API */
   cardClass: string;
   badge: number;
 }[] = [
@@ -45,7 +45,7 @@ export const APPROVAL_DOC_CATEGORIES: {
     labelTh: "ตรวจสอบรายการจ่าย",
     labelEn: "Check payment items",
     cardClass: "from-violet-500 to-purple-600",
-    badge: 4,
+    badge: 0,
   },
   {
     id: "create-po",

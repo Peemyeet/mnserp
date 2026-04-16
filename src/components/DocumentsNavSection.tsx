@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { ChevronDown, FileText } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { APPROVAL_DOC_CATEGORIES } from "../data/approvalCategories";
+import {
+  countForApprovalKind,
+  useApproveCounts,
+} from "../hooks/useApproveCounts";
 
 function linkClass(isActive: boolean) {
   return `flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
@@ -12,6 +16,7 @@ function linkClass(isActive: boolean) {
 }
 
 export function DocumentsNavSection() {
+  const counts = useApproveCounts();
   const loc = useLocation();
   const [open, setOpen] = useState(
     () => loc.pathname.startsWith("/documents") || loc.pathname.startsWith("/approve"),
@@ -25,13 +30,13 @@ export function DocumentsNavSection() {
 
   const onDocsPath =
     loc.pathname.startsWith("/documents") || loc.pathname.startsWith("/approve");
-  const summaryCount = 227;
+  const summaryCount = counts.paymentSummary;
   const categoryCounts = Object.fromEntries(
-    APPROVAL_DOC_CATEGORIES.map((c) => [c.id, c.badge]),
+    APPROVAL_DOC_CATEGORIES.map((c) => [c.id, countForApprovalKind(c.id, counts)]),
   ) as Record<(typeof APPROVAL_DOC_CATEGORIES)[number]["id"], number>;
   const totalBadge =
     summaryCount +
-    APPROVAL_DOC_CATEGORIES.reduce((sum, c) => sum + c.badge, 0);
+    APPROVAL_DOC_CATEGORIES.reduce((sum, c) => sum + categoryCounts[c.id], 0);
 
   return (
     <div className="rounded-xl border border-slate-100 bg-slate-50/50">

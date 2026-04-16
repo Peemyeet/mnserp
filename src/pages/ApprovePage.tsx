@@ -13,6 +13,7 @@ import {
   APPROVAL_DOC_CATEGORIES,
   type ApprovalDocKind,
 } from "../data/approvalCategories";
+import { useApproveCounts } from "../hooks/useApproveCounts";
 
 type ApproveView = "payment-summary" | ApprovalDocKind;
 
@@ -25,6 +26,7 @@ const VIEW_OPTIONS: { value: ApproveView; labelTh: string }[] = [
 ];
 
 export function ApprovePage() {
+  const counts = useApproveCounts();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialView = useMemo<ApproveView>(() => {
     const view = searchParams.get("view");
@@ -105,37 +107,37 @@ export function ApprovePage() {
             <ul className="space-y-2 text-[2rem] leading-tight text-violet-500">
               <DocMenuItem
                 label="อนุมัติรายการจ่าย"
-                count={227}
+                count={counts.paymentSummary}
                 active={activeView === "payment-summary"}
                 onClick={() => selectView("payment-summary")}
               />
               <DocMenuItem
                 label="รายการ PR ไม่มี JOB"
-                count={4}
+                count={counts.prNoJob}
                 active={activeView === "pr-no-job"}
                 onClick={() => selectView("pr-no-job")}
               />
               <DocMenuItem
                 label="ใบลา"
-                count={0}
+                count={counts.leave}
                 active={activeView === "leave"}
                 onClick={() => selectView("leave")}
               />
               <DocMenuItem
                 label="ใบเบิกรถ"
-                count={0}
+                count={counts.vehicle}
                 active={activeView === "vehicle"}
                 onClick={() => selectView("vehicle")}
               />
               <DocMenuItem
                 label="ตรวจสอบรายการจ่าย"
-                count={0}
+                count={counts.auditPayment}
                 active={activeView === "audit-payment"}
                 onClick={() => selectView("audit-payment")}
               />
               <DocMenuItem
                 label="ทำใบสั่งซื้อ"
-                count={0}
+                count={counts.createPo}
                 active={activeView === "create-po"}
                 onClick={() => selectView("create-po")}
               />
@@ -150,7 +152,7 @@ export function ApprovePage() {
             className={`${cardClass} bg-cyan-500 ${activeView === "pr-no-job" ? activeCard : ""}`}
           >
             <span className="absolute right-2 top-2 flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-white/70 px-1.5 text-xs font-bold text-slate-700">
-              0
+              {counts.prNoJob}
             </span>
             <p className="text-4xl font-black leading-none opacity-15">1</p>
             <p className="mt-1 text-3xl font-semibold leading-tight">Production</p>
@@ -162,7 +164,7 @@ export function ApprovePage() {
             className={`${cardClass} bg-amber-500 ${activeView === "leave" ? activeCard : ""}`}
           >
             <span className="absolute right-2 top-2 flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-white/70 px-1.5 text-xs font-bold text-slate-700">
-              0
+              {counts.leave}
             </span>
             <p className="text-4xl font-black leading-none opacity-15">2</p>
             <p className="mt-1 text-3xl font-semibold leading-tight">Repair</p>
@@ -174,7 +176,7 @@ export function ApprovePage() {
             className={`${cardClass} bg-rose-500 ${activeView === "vehicle" ? activeCard : ""}`}
           >
             <span className="absolute right-2 top-2 flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-white/70 px-1.5 text-xs font-bold text-slate-700">
-              0
+              {counts.vehicle}
             </span>
             <p className="text-4xl font-black leading-none opacity-15">3</p>
             <p className="mt-1 text-3xl font-semibold leading-tight">Develop</p>
@@ -186,7 +188,7 @@ export function ApprovePage() {
             className={`${cardClass} bg-violet-500 ${activeView === "create-po" ? activeCard : ""}`}
           >
             <span className="absolute right-2 top-2 flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-white/70 px-1.5 text-xs font-bold text-slate-700">
-              5
+              {counts.createPo}
             </span>
             <p className="text-4xl font-black leading-none opacity-15">5</p>
             <p className="mt-1 text-3xl font-semibold leading-tight">Equipment</p>
@@ -243,9 +245,11 @@ function DocMenuItem({
       >
         <span className="inline-block h-4 w-4 rounded-full bg-amber-400" />
         <span>{label}</span>
-        <span className="inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full bg-rose-100 px-2 text-[1.8rem] leading-none text-rose-500">
-          {count}
-        </span>
+        {count > 0 ? (
+          <span className="inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full bg-rose-100 px-2 text-[1.8rem] leading-none text-rose-500">
+            {count}
+          </span>
+        ) : null}
       </button>
     </li>
   );

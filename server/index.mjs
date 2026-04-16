@@ -12,6 +12,7 @@ import users from "./routes/users.mjs";
 import accounting from "./routes/accounting.mjs";
 import store from "./routes/store.mjs";
 import deptWork from "./routes/deptWork.mjs";
+import approve from "./routes/approve.mjs";
 import { closePool } from "./db.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -40,6 +41,7 @@ const apiIndex = {
     "GET  /api/reports/purchase",
     "GET  /api/reports/accounting",
     "GET  /api/accounting/work-summary",
+    "GET  /api/approve/counts",
     "GET  /api/store/items?warehouse=spare|production|sales",
     "GET  /api/store/categories?warehouse=spare|production|sales",
     "POST /api/store/items",
@@ -71,6 +73,7 @@ app.use("/api/users", users);
 app.use("/api/sales", salesDashboard);
 app.use("/api/reports", reports);
 app.use("/api/accounting", accounting);
+app.use("/api/approve", approve);
 app.use("/api/store", store);
 app.use("/api/dept-work", deptWork);
 app.use("/api", meta);

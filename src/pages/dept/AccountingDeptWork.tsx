@@ -195,32 +195,50 @@ export function AccountingDeptWork() {
             </div>
           </div>
 
-          <Link
-            to="/dept/accounting/invoice"
-            className="relative block rounded-2xl bg-gradient-to-br from-sky-100 to-emerald-100/90 p-4 pt-10 shadow-sm ring-2 ring-sky-200/90 no-underline transition hover:-translate-y-0.5 hover:ring-sky-400 hover:shadow-lg"
-          >
-            <Badge n={summary.invoice.count} tone="receive" showZero />
-            <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-950">
-              <CircleDollarSign className="h-3.5 w-3.5 shrink-0 opacity-80" />
-              BILL INVOICE / ใบกำกับภาษี
-            </p>
-            <p className="mt-2 text-2xl font-bold tabular-nums text-emerald-950">
-              {baht(summary.invoice.totalBaht)}
-            </p>
-          </Link>
+          <div className="relative">
+            <Link
+              to="/dept/accounting/invoice"
+              className="block rounded-2xl bg-gradient-to-br from-sky-100 to-emerald-100/90 p-4 pt-10 shadow-sm ring-2 ring-sky-200/90 no-underline transition hover:-translate-y-0.5 hover:ring-sky-400 hover:shadow-lg"
+            >
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-950">
+                <CircleDollarSign className="h-3.5 w-3.5 shrink-0 opacity-80" />
+                BILL INVOICE / ใบกำกับภาษี
+              </p>
+              <p className="mt-2 text-2xl font-bold tabular-nums text-emerald-950">
+                {baht(summary.invoice.totalBaht)}
+              </p>
+            </Link>
+            <Link
+              to="/dept/accounting/invoice"
+              className="absolute right-3 top-3 z-10 flex h-7 min-w-[1.75rem] items-center justify-center rounded-full bg-emerald-800/90 px-2 text-xs font-bold text-white shadow-sm no-underline ring-2 ring-white/40 hover:bg-emerald-900"
+              aria-label={`จำนวนใบกำกับภาษี ${summary.invoice.count} รายการ`}
+              title="ไปหน้า BILL INVOICE"
+            >
+              {summary.invoice.count}
+            </Link>
+          </div>
 
-          <Link
-            to="/dept/accounting/bill-note"
-            className="relative block rounded-2xl bg-gradient-to-br from-cyan-50 to-teal-100/80 p-4 pt-10 shadow-sm ring-2 ring-teal-200/80 no-underline transition hover:-translate-y-0.5 hover:ring-teal-400 hover:shadow-lg"
-          >
-            <Badge n={summary.billNote.count} tone="receive" showZero />
-            <p className="text-xs font-semibold text-teal-950">
-              BILL NOTE / ใบวางบิล
-            </p>
-            <p className="mt-2 text-2xl font-bold tabular-nums text-teal-950">
-              {baht(summary.billNote.totalBaht)}
-            </p>
-          </Link>
+          <div className="relative">
+            <Link
+              to="/dept/accounting/bill-note"
+              className="block rounded-2xl bg-gradient-to-br from-cyan-50 to-teal-100/80 p-4 pt-10 shadow-sm ring-2 ring-teal-200/80 no-underline transition hover:-translate-y-0.5 hover:ring-teal-400 hover:shadow-lg"
+            >
+              <p className="text-xs font-semibold text-teal-950">
+                BILL NOTE / ใบวางบิล
+              </p>
+              <p className="mt-2 text-2xl font-bold tabular-nums text-teal-950">
+                {baht(summary.billNote.totalBaht)}
+              </p>
+            </Link>
+            <Link
+              to="/dept/accounting/bill-note"
+              className="absolute right-3 top-3 z-10 flex h-7 min-w-[1.75rem] items-center justify-center rounded-full bg-emerald-800/90 px-2 text-xs font-bold text-white shadow-sm no-underline ring-2 ring-white/40 hover:bg-emerald-900"
+              aria-label={`จำนวนใบวางบิล ${summary.billNote.count} รายการ`}
+              title="ไปหน้า BILL NOTE"
+            >
+              {summary.billNote.count}
+            </Link>
+          </div>
 
           <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-2 ring-emerald-200/70">
             <div className="mb-3 flex items-center justify-between">
