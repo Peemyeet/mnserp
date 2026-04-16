@@ -17,7 +17,6 @@
     "db:generate": "npm run db:generate --prefix server",
     "db:validate": "npm run db:validate --prefix server",
     "db:push": "npm run db:push --prefix server",
-    "db:migrate:deploy": "npm run db:migrate:deploy --prefix server",
     "prisma": "npm run prisma --prefix server --",
     "db:import-users": "npm run db:import-users --prefix server",
     "build": "tsc --noEmit && vite build && node --input-type=module -e \"import { copyFileSync } from 'node:fs'; copyFileSync('dist/index.html','dist/404.html');\"",
@@ -26,7 +25,8 @@
     "preview:gh": "vite build && vite preview --base /mnserp/",
     "api": "npm run start --prefix server",
     "api:dev": "npm run dev --prefix server",
-    "api:health": "node scripts/check-api-health.mjs"
+    "api:health": "node scripts/check-api-health.mjs",
+    "verify:mysql-only": "node scripts/verify-mysql-only.mjs"
   },
   "dependencies": {
     "html2canvas": "^1.4.1",

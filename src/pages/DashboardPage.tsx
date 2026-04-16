@@ -64,17 +64,20 @@ export function DashboardPage() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-surface/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-14 z-10 border-b border-slate-200/80 bg-surface/90 px-4 py-3 backdrop-blur-md md:top-0 md:px-6 md:py-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-indigo-600">
-              สวัสดีครับ ยินดีต้อนรับกลับมา
+            <p className="text-xs font-medium text-indigo-600 sm:text-sm">
+              สวัสดีครับ · ยินดีต้อนรับ
             </p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="mt-0.5 text-xl font-bold tracking-tight text-slate-900 sm:mt-1 sm:text-2xl">
               ภาพรวมงาน
             </h1>
-            <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
-              <CalendarDays className="h-4 w-4 shrink-0" />
+            <p className="mt-1 hidden text-sm text-slate-600 sm:block">
+              ดูตัวเลขสำคัญด้านล่าง แล้วแตะขั้นตอนเพื่อเปิดรายการงาน
+            </p>
+            <p className="mt-1 flex items-center gap-2 text-xs text-slate-500 sm:text-sm">
+              <CalendarDays className="h-4 w-4 shrink-0" aria-hidden />
               {todayThai()}
             </p>
           </div>
@@ -96,7 +99,7 @@ export function DashboardPage() {
                   )}
                 </button>
                 {itBellOpen && (
-                  <div className="absolute right-0 top-full z-30 mt-2 w-80 rounded-xl border border-slate-200 bg-white py-2 shadow-lg ring-1 ring-slate-100">
+                  <div className="absolute right-0 top-full z-30 mt-2 w-[min(20rem,calc(100vw-2rem))] max-w-[calc(100vw-1rem)] rounded-xl border border-slate-200 bg-white py-2 shadow-lg ring-1 ring-slate-100 sm:w-80 sm:max-w-none">
                     <p className="border-b border-slate-100 px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
                       แจ้งปัญหา IT
                     </p>
@@ -144,7 +147,7 @@ export function DashboardPage() {
         </div>
       </header>
 
-      <main className="flex-1 space-y-8 p-6">
+      <main className="flex-1 space-y-6 p-4 pb-8 sm:space-y-8 sm:p-6">
         {accessDeniedNote && (
           <div
             className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
@@ -154,7 +157,7 @@ export function DashboardPage() {
           </div>
         )}
         <section aria-labelledby="summary-heading">
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <h2
               id="summary-heading"
               className="text-base font-semibold text-slate-900"
@@ -162,7 +165,10 @@ export function DashboardPage() {
               สรุปจำนวนงาน
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              ตัวเลขคำนวณจากงานชุดเดียวกับที่ฝ่ายขายบันทึก
+              <span className="hidden sm:inline">
+                ตัวเลขคำนวณจากงานชุดเดียวกับที่ฝ่ายขายบันทึก
+              </span>
+              <span className="sm:hidden">สรุปจากงานที่บันทึกในระบบ</span>
             </p>
           </div>
           <SummaryCards stats={summaryStats} />

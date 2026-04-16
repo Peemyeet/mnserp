@@ -44,15 +44,12 @@ migration เสริม (MySQL) — แทนที่ชื่อฐานใ
   # ทางเลือก — ตัวอย่างอะไหล่คลัง (legacy store_part.php → ตาราง store_data):
   # mysql -u root -p mns_pm_2021 < database/migrations/mysql/004_example_store_from_legacy_form.sql
 
-ถ้าใช้ PostgreSQL/Neon แยก — มีไฟล์ database/migrations/*.sql (PostgreSQL) สำหรับ psql เท่านั้น ไม่ใช่เส้นทางหลักของ API นี้
-
 โมดูล PHP เก่า vs ตารางใน MySQL (อ่านก่อนเขียน API ใหม่):
   database/legacy-php-module-map.txt
   ตรวจว่าฐานมีตาราง legacy หรือยัง: GET /api/legacy-tables (เมื่อรัน API)
 
-ย้าย schema จาก Prisma/Neon (PostgreSQL) มา MySQL แบบพร้อม import:
-  database/migrations/mysql/from_postgresql_neon_prisma_mysql.sql
-  (อย่ารันส่วน SECTION B ซ้ำถ้า import database/db_mns.sql แล้ว — อ่านหัวข้อคำเตือนในไฟล์)
+สคริปต์เสริมสำหรับตารางบางชุดบน MySQL (ทางเลือก — อ่านหัวข้อในไฟล์ก่อนรัน):
+  database/migrations/mysql/from_legacy_prisma_mysql.sql
 
 รัน API (พอร์ต 8787):
   cd server && npm install && npm start
@@ -80,4 +77,4 @@ migration เสริม (MySQL) — แทนที่ชื่อฐานใ
 ================================================================================
 เอกสารเสริม (ไม่บังคับ)
 ================================================================================
-- ไฟล์ย้าย MySQL → Neon/pgloader ถูกถอดออกจาก repo แล้ว — API นี้ใช้ MySQL เท่านั้น
+- API และเว็บนี้ใช้ MySQL/MariaDB เท่านั้น — deploy (เช่น Railway) ให้ import dump ตามด้านบน

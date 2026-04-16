@@ -12,6 +12,16 @@
   }
 }
 
+@layer utilities {
+  /** รองรับ notch / home indicator บนมือถือ */
+  .safe-area-pt {
+    padding-top: max(0.25rem, env(safe-area-inset-top, 0px));
+  }
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
 /* หน้า «เอกสารขอเบิก» — พิมพ์เฉพาะการ์ดฟอร์ม (ไม่มี sidebar / แบนเนอร์ / หัวข้อหน้า) */
 @media print {
   html,

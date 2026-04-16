@@ -32,13 +32,13 @@ function formatNumber(n: number) {
 
 export function SummaryCards({ stats }: { stats: SummaryStat[] }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
       {stats.map((s) => {
         const a = accentStyles[s.accent];
         return (
           <article
             key={s.id}
-            className="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-200/60 transition hover:-translate-y-0.5 hover:shadow-card-hover"
+            className="group relative overflow-hidden rounded-2xl bg-white p-4 shadow-card ring-1 ring-slate-200/60 transition active:bg-slate-50/80 sm:p-5 sm:hover:-translate-y-0.5 sm:hover:shadow-card-hover"
           >
             <div
               className={`absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${a.bg} opacity-[0.12] blur-2xl transition group-hover:opacity-20`}

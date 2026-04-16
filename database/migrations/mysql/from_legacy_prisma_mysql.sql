@@ -1,16 +1,12 @@
 -- =============================================================================
--- แปลงจาก PostgreSQL (Prisma / Neon migrations) → MySQL / MariaDB
--- แหล่งที่มา:
---   server/prisma/migrations/20250407120000_init_neon_core/migration.sql
---   server/prisma/migrations/20250408130000_erp_legacy_core/migration.sql
+-- MySQL / MariaDB — ตารางเสริม (เทียบโครงใน server/prisma/schema.prisma)
 --
--- การแปลงหลัก: SERIAL/BIGSERIAL → AUTO_INCREMENT, BOOLEAN → TINYINT(1),
---   DOUBLE PRECISION → DOUBLE, TIMESTAMP(3) → DATETIME(3), ลบ double-quote,
---   IDENTITY → AUTO_INCREMENT
+-- การแปลงหลักที่ใช้ในไฟล์นี้: SERIAL/BIGSERIAL → AUTO_INCREMENT, BOOLEAN → TINYINT(1),
+--   DOUBLE PRECISION → DOUBLE, TIMESTAMP(3) → DATETIME(3), ฯลฯ
 --
 -- คำเตือน:
 --   • ถ้า import database/db_mns.sql แล้ว — อย่ารัน SECTION B (ตาราง customer, job_data, … ซ้ำ)
---   • ใช้ SECTION B เมื่อย้ายจาก Postgres ที่สร้างจาก migration นี้ หรือฐาน MySQL เปล่า
+--   • ใช้ SECTION B เมื่อฐาน MySQL ว่างหรือมาจาก migration ชุดเดิมเท่านั้น
 --   • SECTION A = ตาราง mns_* เทียบเท่า database/migrations/mysql/003_*.sql + FK
 -- =============================================================================
 
@@ -350,7 +346,7 @@ CREATE TABLE IF NOT EXISTS `sparepart` (
   PRIMARY KEY (`part_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Seed (จาก PostgreSQL INSERT)
+-- Seed (ค่าเริ่มต้น)
 
 INSERT INTO `workstatus` (`ws_id`, `ws_name`, `info`, `list`, `public`, `user_id`) VALUES
  (1, 'N01. รับงาน', 'บันทึกข้อมูลงานที่รับเข้าบริษัท', 1, 1, 2),

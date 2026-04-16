@@ -1,4 +1,5 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
@@ -12,6 +13,7 @@ import {
   PenLine,
   Settings,
   UserCircle,
+  X,
 } from "lucide-react";
 import {
   allowedDepartmentIds,
@@ -48,38 +50,63 @@ function sidebarLinkContent(isActive: boolean) {
 
 export function Sidebar({
   onOpenSettings,
+  mobileOpen = false,
+  onCloseMobile,
 }: {
   onOpenSettings?: () => void;
+  /** บนมือถือ: true = แสดง drawer เมนู */
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout, user } = useAuth();
   const { unreadSubmissionCount } = useItSupport();
+
+  useEffect(() => {
+    onCloseMobile?.();
+  }, [location.pathname, location.search, onCloseMobile]);
 
   const deptIds = user ? allowedDepartmentIds(user) : [];
   const fullAccess = user ? hasFullDepartmentAccess(user) : true;
   const showSalesMenu = user ? canAccessDepartment(user, "sales") : true;
 
-  return (
-    <aside className="print:hidden flex h-screen min-h-0 w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white shadow-sm">
-      <NavLink
-        to={user ? defaultHomePath(user) : "/"}
-        className="flex h-16 items-center gap-3 border-b border-slate-100 px-5 no-underline"
-      >
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-500/25">
-          <span className="text-sm font-bold tracking-tight">M</span>
-        </div>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-slate-900">
-            ERP MNS
-          </p>
-          <p className="truncate text-xs text-slate-500">แดชบอร์ดงาน</p>
-        </div>
-      </NavLink>
+  const slideClass = mobileOpen ? "translate-x-0" : "-translate-x-full";
 
-      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
+  return (
+    <aside
+      className={`print:hidden fixed inset-y-0 left-0 z-50 flex h-[100dvh] min-h-0 w-[min(18rem,calc(100vw-2rem))] max-w-[min(18rem,85vw)] shrink-0 flex-col border-r border-slate-200/80 bg-white shadow-lg shadow-slate-300/25 transition-transform duration-200 ease-out md:relative md:z-auto md:h-screen md:w-64 md:max-w-none md:shadow-sm ${slideClass} md:translate-x-0`}
+    >
+      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-100 px-3">
+        <NavLink
+          to={user ? defaultHomePath(user) : "/"}
+          className="flex min-w-0 flex-1 items-center gap-3 py-2 pl-2 no-underline"
+          onClick={() => onCloseMobile?.()}
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-500/25">
+            <span className="text-sm font-bold tracking-tight">M</span>
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-900">
+              ERP MNS
+            </p>
+            <p className="truncate text-xs text-slate-500">แดชบอร์ดงาน</p>
+          </div>
+        </NavLink>
         <button
           type="button"
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-600 transition hover:bg-slate-50"
+          className="touch-manipulation flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-800 md:hidden"
+          onClick={() => onCloseMobile?.()}
+          aria-label="ปิดเมนู"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain p-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">
+        <button
+          type="button"
+          className="flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-600 transition hover:bg-slate-50"
         >
           <UserCircle className="h-5 w-5 shrink-0 text-slate-400" />
           <span className="min-w-0 flex-1">
@@ -107,7 +134,7 @@ export function Sidebar({
         >
           {({ isActive }) => (
             <span
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
+              className={`flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
             >
               <Home
                 className={`h-5 w-5 shrink-0 ${isActive ? "text-indigo-600" : "text-slate-400"}`}
@@ -123,7 +150,7 @@ export function Sidebar({
         >
           {({ isActive }) => (
             <span
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
+              className={`flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
             >
               <ClipboardList
                 className={`h-5 w-5 shrink-0 ${isActive ? "text-indigo-600" : "text-slate-400"}`}
@@ -136,7 +163,7 @@ export function Sidebar({
           <NavLink to="/sales" className="block rounded-xl no-underline">
             {({ isActive }) => (
               <span
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
+                className={`flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
               >
                 <PenLine
                   className={`h-5 w-5 shrink-0 ${isActive ? "text-indigo-600" : "text-slate-400"}`}
@@ -180,7 +207,7 @@ export function Sidebar({
         >
           {({ isActive }) => (
             <span
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
+              className={`flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
             >
               <Monitor
                 className={`h-5 w-5 shrink-0 ${isActive ? "text-indigo-600" : "text-slate-400"}`}
@@ -196,7 +223,7 @@ export function Sidebar({
           <button
             key={label}
             type="button"
-            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-600 transition hover:bg-indigo-50 hover:text-indigo-700"
+            className="group flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-600 transition hover:bg-indigo-50 hover:text-indigo-700"
           >
             <Icon className="h-5 w-5 shrink-0 text-slate-400 transition group-hover:text-indigo-600" />
             <span className="min-w-0 flex-1 truncate text-sm font-medium">
@@ -214,8 +241,11 @@ export function Sidebar({
       <div className="shrink-0 border-t border-slate-100 p-3">
         <button
           type="button"
-          onClick={() => onOpenSettings?.()}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-600 transition hover:bg-slate-50"
+          onClick={() => {
+            onCloseMobile?.();
+            onOpenSettings?.();
+          }}
+          className="flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-600 transition hover:bg-slate-50"
         >
           <Settings className="h-5 w-5 shrink-0 text-slate-400" />
           <span className="text-sm font-medium">ตั้งค่า</span>
@@ -223,10 +253,11 @@ export function Sidebar({
         <button
           type="button"
           onClick={() => {
+            onCloseMobile?.();
             logout();
             navigate("/login", { replace: true });
           }}
-          className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-rose-600 transition hover:bg-rose-50"
+          className="mt-1 flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-left text-rose-600 transition hover:bg-rose-50"
         >
           <LogOut className="h-5 w-5 shrink-0" />
           <span className="text-sm font-medium">ออกจากระบบ</span>

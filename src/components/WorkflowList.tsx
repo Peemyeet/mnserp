@@ -48,15 +48,20 @@ export function WorkflowList({
             สถานะงานตามขั้นตอน
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            งานทั้งหมดในระบบ{" "}
-            <span className="font-medium text-slate-700">
-              {formatNumber(totalInSystem)}
-            </span>{" "}
-            งาน · รวมที่แสดงในขั้นตอน{" "}
-            <span className="font-medium text-slate-700">
-              {formatNumber(pipelineTotal)}
-            </span>{" "}
-            งาน · กดแถวเพื่อเปิดรายการในขั้นนั้น
+            <span className="md:hidden">
+              ทั้งหมด {formatNumber(totalInSystem)} งาน · แตะแถวเพื่อดูในแต่ละขั้น
+            </span>
+            <span className="hidden md:inline">
+              งานทั้งหมดในระบบ{" "}
+              <span className="font-medium text-slate-700">
+                {formatNumber(totalInSystem)}
+              </span>{" "}
+              งาน · รวมที่แสดงในขั้นตอน{" "}
+              <span className="font-medium text-slate-700">
+                {formatNumber(pipelineTotal)}
+              </span>{" "}
+              งาน · กดแถวเพื่อเปิดรายการในขั้นนั้น
+            </span>
           </p>
         </div>
         <label className="relative block sm:w-72">

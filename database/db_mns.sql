@@ -8,7 +8,6 @@
 -- PHP Version: 5.6.26
 --
 -- ERP MNS: dump MySQL เบา — ใช้กับ Docker / import ตรง (ดู database/IMPORT.txt)
--- อย่ารันไฟล์นี้ด้วย psql; ถ้าใช้ Postgres แยก ดู database/migrations/*.sql (ไม่ใช่เส้นทางหลักของ API นี้)
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";

@@ -2,6 +2,9 @@
   "name": "mns-api",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "prisma": "node scripts/prisma-with-db-env.mjs",
     "start": "node index.mjs",
@@ -10,8 +13,7 @@
     "db:import-users": "node scripts/import-users-csv.mjs",
     "db:generate": "node scripts/prisma-with-db-env.mjs generate",
     "db:validate": "node scripts/prisma-with-db-env.mjs validate",
-    "db:push": "node scripts/prisma-with-db-env.mjs db push",
-    "db:migrate:deploy": "node scripts/prisma-with-db-env.mjs migrate deploy"
+    "db:push": "node scripts/prisma-with-db-env.mjs db push"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",

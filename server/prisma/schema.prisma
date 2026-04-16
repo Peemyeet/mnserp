@@ -1,6 +1,6 @@
-// Prisma — provider MySQL (cPanel / MariaDB)
+// Prisma — datasource MySQL เท่านั้น (Railway / cPanel / MariaDB)
 // สร้าง Client: npm run db:generate --prefix server
-// ฐานจริงของ ERP มาจาก database/db_mns.sql + database/database.sql
+// ฐานหลัก: import จาก database/*.sql (ดู database/IMPORT.txt) — ซิงค์โมเดล Prisma กับฐานที่มีอยู่: npm run db:push (ไม่ใช้ prisma migrate ใน repo นี้)
 
 generator client {
   provider = "prisma-client-js"

@@ -1,4 +1,4 @@
--- MySQL เท่านั้น — โครงเดียวกับ PostgreSQL ใน database/migrations/003_payment_shipping_delivery_note.sql
+-- MySQL / MariaDB — ตารางชำระเงิน / จัดส่ง / ใบส่งของ (เสริม)
 -- mysql -u root -p db_mns < database/migrations/mysql/003_payment_shipping_delivery_note.sql
 
 SET NAMES utf8mb4;

@@ -359,10 +359,14 @@ export function UserSettingsPage() {
 
         {!extendedColumns && conn.db ? (
           <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-xs text-sky-950">
-            ฐานข้อมูลยังไม่มีคอลัมน์ชื่อเล่น/สิทธิ์ลา — รันไฟล์{" "}
-            <code className="rounded bg-white/80 px-1">database/migrations/001_user_hr_extend.sql</code>{" "}
+            ฐานข้อมูลยังไม่มีคอลัมน์ชื่อเล่น/สิทธิ์ลา — รันไฟล์ MySQL{" "}
+            <code className="rounded bg-white/80 px-1">
+              database/migrations/mysql/001_user_hr_extend.sql
+            </code>{" "}
             และ{" "}
-            <code className="rounded bg-white/80 px-1">002_sales_target_baht.sql</code>{" "}
+            <code className="rounded bg-white/80 px-1">
+              database/migrations/mysql/002_sales_target_baht.sql
+            </code>{" "}
             สำหรับเป้าขาย KPI
           </div>
         ) : null}

@@ -263,13 +263,11 @@ export function SalesDeptOverviewCharts({
     <div className="rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-12 text-center text-sm text-slate-600">
       <p className="font-medium text-slate-800">ยังไม่มีกราฟจากฐานข้อมูล</p>
       <p className="mx-auto mt-2 max-w-xl text-xs text-slate-500">
-        ตั้งค่า <code className="rounded bg-white px-1">DATABASE_URL</code> ใน{" "}
-        <code className="rounded bg-white px-1">server/.env</code> แล้วนำเข้า{" "}
-        <code className="rounded bg-white px-1">database/db_mns.sql</code> ใน MySQL — รัน{" "}
-        <code className="rounded bg-white px-1">
-          ALLOW_NEON_DESTRUCTIVE_IMPORT=1 npm run db:import-mysql
-        </code>{" "}
-        (ต้องมี Docker) จากนั้นรีเฟรชหน้านี้
+        ตั้งค่า MySQL ใน <code className="rounded bg-white px-1">server/.env</code> (หรือ Railway{" "}
+        <code className="rounded bg-white px-1">MYSQL*</code>) แล้ว import ข้อมูล เช่น{" "}
+        <code className="rounded bg-white px-1">database/mns_pm_2021.sql</code> หรือ{" "}
+        <code className="rounded bg-white px-1">database/db_mns.sql</code> — ดู{" "}
+        <code className="rounded bg-white px-1">database/IMPORT.txt</code> แล้วรีเฟรชหน้านี้
       </p>
     </div>
   );

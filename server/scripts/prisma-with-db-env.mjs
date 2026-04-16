@@ -5,9 +5,8 @@
  *   node scripts/prisma-with-db-env.mjs generate
  *   node scripts/prisma-with-db-env.mjs validate
  *   node scripts/prisma-with-db-env.mjs db push
- *   node scripts/prisma-with-db-env.mjs migrate deploy
  *
- * จาก server: npm run prisma -- migrate deploy   (อย่าใช้ npx prisma ตรงๆ ถ้ามีแค่ DB_* ไม่มี DATABASE_URL)
+ * จาก server: npm run prisma -- db push   (อย่าใช้ npx prisma ตรงๆ ถ้ามีแค่ DB_* ไม่มี DATABASE_URL)
  */
 import { execSync } from "child_process";
 import { config } from "dotenv";
@@ -45,7 +44,7 @@ if (offlineSafe && !hasMysqlEnv()) {
     '[prisma] ไม่มี MySQL ใน .env — ใช้ URL จำลองสำหรับ "' +
       sub.join(" ") +
       '" เท่านั้น (ไม่เชื่อมต่อฐาน)\n' +
-      "         คำสั่ง db push / migrate ต้องตั้ง MYSQL* / DB_* หรือ DATABASE_URL=mysql://...",
+      "         คำสั่ง db push ต้องตั้ง MYSQL* / DB_* หรือ DATABASE_URL=mysql://...",
   );
 }
 
