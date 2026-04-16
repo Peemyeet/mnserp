@@ -6,12 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  emptyWarehouses,
-  seedChartAccounts,
-  seedDepartmentUnits,
-  seedDivisions,
-} from "../data/orgSettingsSeed";
+import { emptyWarehouses } from "../data/orgSettingsSeed";
 import type {
   ChartAccountRow,
   DepartmentUnit,
@@ -53,13 +48,11 @@ function newId(p: string) {
 }
 
 export function OrgSettingsProvider({ children }: { children: ReactNode }) {
-  const [divisions, setDivisions] = useState<Division[]>(() => [...seedDivisions]);
+  const [divisions, setDivisions] = useState<Division[]>([]);
   const [departmentUnits, setDepartmentUnits] = useState<DepartmentUnit[]>(
-    () => [...seedDepartmentUnits]
+    []
   );
-  const [chartAccounts, setChartAccounts] = useState<ChartAccountRow[]>(
-    () => [...seedChartAccounts]
-  );
+  const [chartAccounts, setChartAccounts] = useState<ChartAccountRow[]>([]);
   const [warehouses, setWarehouses] = useState(() => emptyWarehouses());
 
   const addDivision = useCallback((d: Omit<Division, "id">) => {

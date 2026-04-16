@@ -10,11 +10,12 @@ import {
 import { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { DeptPageFrame } from "../../components/dept/DeptPageFrame";
-import {
-  SALES_REQUIREMENTS_SEED,
-  type SalesRequirementRow,
-  type SalesRequirementStatus,
+import type {
+  SalesRequirementRow,
+  SalesRequirementStatus,
 } from "../../data/salesRequirementsSeed";
+
+const SALES_REQUIREMENTS_ROWS: SalesRequirementRow[] = [];
 
 const STATUS_TABS: {
   id: SalesRequirementStatus;
@@ -97,7 +98,7 @@ export function SalesRequirementsPage() {
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
-    return SALES_REQUIREMENTS_SEED.filter(
+    return SALES_REQUIREMENTS_ROWS.filter(
       (r) => r.status === status && matchesSearch(r, search)
     );
   }, [status, search]);

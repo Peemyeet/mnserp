@@ -41,30 +41,8 @@ function ReceiptListModal({
 
   if (!open) return null;
 
-  const rows = [
-    {
-      no: 1,
-      receipt: "REG-6500039",
-      date: "2022-10-20",
-      customer: "บริษัท ไทยแอร์โรว์ จำกัด",
-      price: 6500,
-    },
-    {
-      no: 2,
-      receipt: "REG-6500040",
-      date: "2022-10-25",
-      customer: "บริษัท ชบาบางกอก จำกัด",
-      price: 19500,
-    },
-    {
-      no: 3,
-      receipt: "REG-6500041",
-      date: "2022-10-28",
-      customer:
-        "บริษัท พีเอสแอล ออโตเมชั่น ซิสเต็ม จำกัด (สำนักงานใหญ่)",
-      price: 2400,
-    },
-  ];
+  const rows: { no: number; receipt: string; date: string; customer: string; price: number }[] =
+    [];
 
   return createPortal(
     <div
@@ -156,7 +134,9 @@ function ReceiptListModal({
 
         <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-slate-500">
-            Showing 1 to {rows.length} of {rows.length} entries
+            {rows.length === 0
+              ? "Showing 0 to 0 of 0 entries"
+              : `Showing 1 to ${rows.length} of ${rows.length} entries`}
           </p>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <button
@@ -194,35 +174,15 @@ function ReceiptListModal({
   );
 }
 
-const commissionRows = [
-  {
-    no: 1,
-    cms: "CMS6500001",
-    doc: "EXPM6500838",
-    company: "บริษัท มณีสูรย์ กรุ๊ป จำกัด",
-    docDate: "2022-05-10",
-    totalBeforeVat: 100000.0,
-    commission5: 5000.0,
-  },
-  {
-    no: 2,
-    cms: "CMS6500002",
-    doc: "EXPM6500839",
-    company: "บริษัท ตัวอย่าง จำกัด",
-    docDate: "2022-06-01",
-    totalBeforeVat: 45000.5,
-    commission5: 2250.03,
-  },
-  {
-    no: 3,
-    cms: "CMS6500003",
-    doc: "EXPM6500840",
-    company: "บริษัท ทดสอบ จำกัด (มหาชน)",
-    docDate: "2022-07-15",
-    totalBeforeVat: 12800.0,
-    commission5: 640.0,
-  },
-];
+const commissionRows: {
+  no: number;
+  cms: string;
+  doc: string;
+  company: string;
+  docDate: string;
+  totalBeforeVat: number;
+  commission5: number;
+}[] = [];
 
 export function CommissionReportPanel({
   onRequestFullscreen,

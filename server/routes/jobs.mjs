@@ -95,7 +95,7 @@ r.post("/", async (req, res) => {
       info = info ? `${companyLabel}\n${info}` : companyLabel;
     }
 
-    const [result] = await p.query(
+    const [ins] = await p.query(
       `INSERT INTO job_data (
         profile_id, job_no, customer_id, service_id, product_name, model, brand, sn,
         job_amount, info, recive_job, send_job, job_condition,
@@ -129,7 +129,7 @@ r.post("/", async (req, res) => {
         user_id,
       ]
     );
-    const job_id = result.insertId;
+    const job_id = ins.insertId;
     const [rows] = await p.query(
       `SELECT j.job_id, j.service_id, j.product_name, j.job_po, j.job_status, j.modified,
               c.cus_name AS customer_name, w.ws_name

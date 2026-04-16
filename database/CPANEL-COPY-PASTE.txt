@@ -1,0 +1,22 @@
+ทำตามลำดับ (copy-paste)
+
+1) อัปโหลดโฟลเดอร์โปรเจกต์ขึ้นโฮสต์ (FTP / File Manager) ตามที่คุณใช้
+
+2) cPanel → MySQL® Databases → สร้างฐาน + user → ผูก ALL PRIVILEGES
+
+3) cPanel → phpMyAdmin → เลือกฐานที่สร้าง → Import
+   - แนะนำ (ข้อมูลครบ): อัปโหลด database/mns_pm_2021.sql → Go (รอจนเสร็จ; ตั้ง DB_DATABASE ให้ตรงชื่อฐาน)
+   - หรือชุดเบา: database/db_mns.sql → Go แล้ว database/database.sql → Go
+
+4) บนเซิร์ฟเวอร์ สร้าง server/.env จาก server/.env.cpanel.example
+   ใส่แบบ B: DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD ให้ตรง cPanel (ไม่บังคับ DATABASE_URL)
+
+5) ในโฟลเดอร์ server รัน:
+   npm install
+   npm run db:generate
+   npm start
+   (หรือตามวิธีรัน Node ของโฮสต์)
+
+6) เปิดเบราว์เซอร์ที่เว็บ → ต้องเห็นแอป และ GET /api/health ได้ db: true
+
+ถ้า error เรื่องคอลัมน์ซ้ำตอนรัน database.sql — ข้ามได้ (คอลัมน์มีจาก dump แล้ว)

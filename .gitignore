@@ -5,3 +5,5 @@ dist
 *.local
 .env
 server/.env
+migrate.env
+database/mns_pm_2021.sql

@@ -1,18 +1,83 @@
-ไฟล์ db_mns.sql เป็นสำเนาจากโปรเจกต์ MNS (โครงสร้าง + ข้อมูลตัวอย่าง)
+ไฟล์ database/mns_pm_2021.sql — dump หลักจาก PHP/MariaDB (~17MB): โครง + ข้อมูลครบหลายร้อยตาราง (ชื่อฐาน mns_pm_2021)
 
-ติดตั้งแพ็กเกจ + สร้าง server/.env (ครั้งแรก):
+ไฟล์ database/db_mns.sql — dump เบากว่า (ตัวอย่าง/ชุดเก่าใน repo) ถ้าไม่ใช้ mns_pm_2021
+
+API โปรเจกต์นี้ (โฟลเดอร์ server/) เชื่อม MySQL โดยตรง — ตั้ง DATABASE_URL=mysql://... ใน server/.env
+
+================================================================================
+Deploy บน Railway (แนะนำสำหรับโปรเจกต์นี้)
+================================================================================
+อ่าน RAILWAY.md — บริการเดียว: `npm run build` + `node server/index.mjs` เสิร์ฟทั้ง SPA และ `/api`
+
+================================================================================
+อัปโหลดขึ้น cPanel
+================================================================================
+ขั้นตอนแบบสั้นมาก: database/CPANEL-COPY-PASTE.txt
+
+รายละเอียด: database/CPANEL-MYSQL.txt
+
+ลำดับ Import ใน phpMyAdmin (เลือกอย่างใดอย่างหนึ่ง):
+  • แนะนำ: database/mns_pm_2021.sql เท่านั้น (สร้างฐานชื่อ mns_pm_2021 ก่อน แล้วตั้ง DB_DATABASE ให้ตรง)
+  • หรือชุดเบา: 1) database/db_mns.sql  2) database/database.sql
+
+ย้ายข้อมูลจาก MySQL ของระบบ PHP เข้าฐานที่โปรแกรมนี้ใช้:
+  database/MIGRATE-FROM-PHP-MYSQL.txt
+
+================================================================================
+ติดตั้งบนเครื่องพัฒนา
+================================================================================
   npm run setup
-  หรือใช้ Docker MySQL ในครั้งเดียว: npm run setup:docker
+  หรือ: npm run setup:docker   (ยก MySQL ใน Docker แล้วโหลด mns_pm_2021.sql เข้า volume ครั้งแรก)
 
-นำเข้า MySQL/MariaDB (ถ้าไม่ใช้ Docker หรือต้องการ import ใหม่):
+สร้างฐานแล้ว import dump หลัก (แนะนำ):
+  mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS mns_pm_2021 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+  mysql -u root -p mns_pm_2021 < database/mns_pm_2021.sql
+
+ชุดเบา (db_mns):
   mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS db_mns CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
   mysql -u root -p db_mns < database/db_mns.sql
+
+migration เสริม (MySQL) — แทนที่ชื่อฐานให้ตรงที่ใช้ (mns_pm_2021 หรือ db_mns):
+  mysql -u root -p mns_pm_2021 < database/migrations/mysql/001_user_hr_extend.sql
+  mysql -u root -p mns_pm_2021 < database/migrations/mysql/002_sales_target_baht.sql
+  mysql -u root -p mns_pm_2021 < database/migrations/mysql/003_payment_shipping_delivery_note.sql
+  # ทางเลือก — ตัวอย่างอะไหล่คลัง (legacy store_part.php → ตาราง store_data):
+  # mysql -u root -p mns_pm_2021 < database/migrations/mysql/004_example_store_from_legacy_form.sql
+
+ถ้าใช้ PostgreSQL/Neon แยก — มีไฟล์ database/migrations/*.sql (PostgreSQL) สำหรับ psql เท่านั้น ไม่ใช่เส้นทางหลักของ API นี้
+
+โมดูล PHP เก่า vs ตารางใน MySQL (อ่านก่อนเขียน API ใหม่):
+  database/legacy-php-module-map.txt
+  ตรวจว่าฐานมีตาราง legacy หรือยัง: GET /api/legacy-tables (เมื่อรัน API)
+
+ย้าย schema จาก Prisma/Neon (PostgreSQL) มา MySQL แบบพร้อม import:
+  database/migrations/mysql/from_postgresql_neon_prisma_mysql.sql
+  (อย่ารันส่วน SECTION B ซ้ำถ้า import database/db_mns.sql แล้ว — อ่านหัวข้อคำเตือนในไฟล์)
 
 รัน API (พอร์ต 8787):
   cd server && npm install && npm start
 
-รันเว็บ (พร็อกซี /api -> API):
-  จากโฟลเดอร์โปรเจกต์: npm run dev
-  อีกเทอร์มินัล: npm run api
+รันเว็บ + API:
+  npm run dev:all
+  หรือแยก: npm run dev  และ  npm run api
 
-ตั้งค่าการเชื่อมต่อ: คัดลอก server/.env.example เป็น server/.env แล้วแก้รหัสผ่าน
+ตั้งค่า server/.env:
+  คัดลอก server/.env.example แล้วใส่ DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/ชื่อฐาน
+
+ทดสอบ:
+  npm run api:health   → ต้องได้ ok: true, db: true
+
+ทดสอบเพิ่ม: GET /api/stats, /api/customers, /api/jobs
+
+================================================================================
+แผนฐานลูกค้า / รายงาน (อ่านเพิ่ม)
+================================================================================
+- database/docs/SCHEMA_CUSTOMER_VS_MARKET.md — แยกลูกค้า vs ตาราง market (ซัพพลายเออร์)
+- database/queries/customer_segment_summary.sql — SQL สรุป job / ใบเสนอราคาต่อลูกค้า + จังหวัด
+- database/docs/CONTACT_DATA_RULES.md — เกณฑ์ทำความสะอาด customer_contact
+- database/docs/ICP_VALUE_PROPOSITIONS.md — ข้อความ value proposition ต่อกลุ่มลูกค้า
+
+================================================================================
+เอกสารเสริม (ไม่บังคับ)
+================================================================================
+- ไฟล์ย้าย MySQL → Neon/pgloader ถูกถอดออกจาก repo แล้ว — API นี้ใช้ MySQL เท่านั้น

@@ -16,20 +16,7 @@ type Row = {
   qtyTotal: number;
 };
 
-const MOCK_ROWS: Row[] = [
-  {
-    id: 1,
-    daysMoved: 167,
-    customerPo: "",
-    serviceNo: "MNSGR65112264 (R)",
-    jobName: "Powtran",
-    engineer: "นายวริฐา จำปาทอง",
-    sales: "นิภาวรรณ ฤทธิ์สันเทียะ",
-    customer: "บริษัท บลูเวฟ สตาร์ช จำกัด",
-    qtyDone: 1,
-    qtyTotal: 1,
-  },
-];
+const MOCK_ROWS: Row[] = [];
 
 type SortKey =
   | "daysMoved"

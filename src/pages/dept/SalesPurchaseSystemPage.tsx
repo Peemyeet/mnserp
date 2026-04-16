@@ -14,8 +14,8 @@ type Row = {
   customer: string;
 };
 
-/** ตัวอย่างว่าง — เชื่อม API เมื่อพร้อม */
-const MOCK_ROWS: Row[] = [];
+/** ไม่มี mock — รอ API/ตารางฝั่งซื้อ (เช่น bill_order + job_data) */
+const ROWS: Row[] = [];
 
 type SortKey =
   | "daysMoved"
@@ -50,7 +50,7 @@ export function SalesPurchaseSystemPage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const filtered = useMemo(
-    () => MOCK_ROWS.filter((r) => matchesSearch(r, search)),
+    () => ROWS.filter((r) => matchesSearch(r, search)),
     [search]
   );
 

@@ -167,7 +167,7 @@ export function SalesMyWorkDashboard() {
 
       {!conn.apiOk || !conn.db ? (
         <p className="rounded-xl border border-amber-100 bg-amber-50/80 px-4 py-3 text-sm text-amber-900">
-          โหมดออฟไลน์หรือยังไม่เชื่อม MySQL — แสดงข้อมูลได้เมื่อ API และฐานข้อมูลพร้อม
+          โหมดออฟไลน์หรือยังไม่เชื่อมฐานข้อมูล — แสดงข้อมูลได้เมื่อ API และฐานข้อมูลพร้อม
         </p>
       ) : null}
 
@@ -183,7 +183,7 @@ export function SalesMyWorkDashboard() {
           <p className="mt-1 text-amber-900/90">
             ใช้ <strong className="font-semibold">username</strong> ล็อกอินให้ตรงกับค่าใน
             ตาราง <code className="rounded bg-white/80 px-1">user_data.username</code>{" "}
-            ของ MySQL จึงจะดึงรายการงานและ KPI ส่วนตัวได้
+            ของ API จึงจะดึงรายการงานและ KPI ส่วนตัวได้
           </p>
         </div>
       ) : null}

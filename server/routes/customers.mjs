@@ -40,7 +40,7 @@ r.post("/", async (req, res) => {
     const cus_code = `C-ERP-${y}-${stamp}`;
 
     const p = getPool();
-    const [result] = await p.query(
+    const [ins] = await p.query(
       `INSERT INTO customer (
         cus_code, cus_name, cus_address, cus_umpher, cus_province, cus_zipcode,
         cus_tel, cus_fax, cus_tax, cus_contact, contact_tel, contact_email,
@@ -63,11 +63,11 @@ r.post("/", async (req, res) => {
         user_id,
       ]
     );
-    const insertId = result.insertId;
+    const cus_id = ins.insertId;
     const [rows] = await p.query(
       `SELECT cus_id, cus_code, cus_name, cus_contact, cus_tel, contact_tel, cus_info, modified, user_id
        FROM customer WHERE cus_id = ?`,
-      [insertId]
+      [cus_id]
     );
     res.status(201).json({ ok: true, row: rows[0] });
   } catch (e) {

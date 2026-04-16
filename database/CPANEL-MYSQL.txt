@@ -1,0 +1,24 @@
+อัปโหลดฐานข้อมูล MySQL ไป cPanel (แบบสั้น)
+
+1) ใน cPanel → MySQL® Databases
+   - สร้างฐานข้อมูลใหม่ (จดชื่อ เช่น user_dbname)
+   - สร้าง user + รหัสผ่าน และผูก user กับฐาน (ALL PRIVILEGES)
+
+2) ดึงข้อมูลจากเครื่องคุณเป็นไฟล์ .sql
+   บน Mac/Linux (แก้ USER, DB):
+   mysqldump -u USER -p DB_NAME > mns_backup.sql
+
+3) ใน cPanel → phpMyAdmin → เลือกฐานที่สร้าง → แท็บ Import
+   - เลือกไฟล์ mns_backup.sql (หรือ database/db_mns.sql ของโปรเจกต์)
+   - กด Go
+
+4) (ถ้าใช้โปรเจกต์ MNS) รัน migration เสริมทีละไฟล์ใน phpMyAdmin → SQL:
+   database/migrations/mysql/001_user_hr_extend.sql
+   database/migrations/mysql/002_sales_target_baht.sql
+   database/migrations/mysql/003_payment_shipping_delivery_note.sql
+
+5) ใส่ connection ใน server/.env บนเซิร์ฟเวอร์ที่รัน Node API:
+   DATABASE_URL=mysql://CPANEL_USER:CPANEL_PASS@localhost:3306/ชื่อฐาน
+   (บางโฮสต์ใช้ 127.0.0.1 หรือโฮสต์ระยะไกลที่ cPanel แจ้ง — ตามเอกสารโฮสต์)
+
+6) รัน API: npm run api แล้วทดสอบ GET /api/health (ต้องได้ db: true)

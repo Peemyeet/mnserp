@@ -13,7 +13,7 @@ export type MnsConnectionState = {
   ready: boolean;
   /** มี response จาก API (ไม่ใช่ network error / HTML ผิดพลาด) */
   apiOk: boolean;
-  /** MySQL query ใน /health ผ่าน */
+  /** การ query ใน /health ผ่าน (MySQL) */
   db: boolean;
   message?: string;
 };

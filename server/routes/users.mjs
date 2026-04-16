@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPool } from "../db.mjs";
+import { getPool, isMissingColumnError } from "../db.mjs";
 
 const r = Router();
 
@@ -91,7 +91,7 @@ r.get("/", async (_req, res) => {
       const [rows] = await p.query(EXT_SELECT);
       raw = rows;
     } catch (e) {
-      if (e.code === "ER_BAD_FIELD_ERROR") {
+      if (isMissingColumnError(e)) {
         extended = false;
         const [rows] = await p.query(BASE_SELECT);
         raw = rows;
@@ -174,7 +174,7 @@ r.patch("/:userId", async (req, res) => {
         ]
       );
     } catch (e) {
-      if (e.code === "ER_BAD_FIELD_ERROR") {
+      if (isMissingColumnError(e)) {
         try {
           await p.query(
             `UPDATE user_data SET
@@ -185,7 +185,7 @@ r.patch("/:userId", async (req, res) => {
             paramsHr
           );
         } catch (e2) {
-          if (e2.code === "ER_BAD_FIELD_ERROR") {
+          if (isMissingColumnError(e2)) {
             await p.query(
               `UPDATE user_data SET
                  fname = ?, lname = ?, phonenumber = ?, position = ?, user_gid = ?,
@@ -225,7 +225,7 @@ r.patch("/:userId", async (req, res) => {
       const [[r]] = await p.query(EXT_ONE, [userId]);
       row = r;
     } catch (e) {
-      if (e.code === "ER_BAD_FIELD_ERROR") {
+      if (isMissingColumnError(e)) {
         extended = false;
         const [[r]] = await p.query(BASE_ONE, [userId]);
         row = r;

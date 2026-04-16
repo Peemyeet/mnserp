@@ -3,11 +3,9 @@ import { Layers, MessageCircle } from "lucide-react";
 import { DeptPageFrame } from "../../components/dept/DeptPageFrame";
 import { DeptSubPageHeader } from "../../components/dept/DeptSubPageHeader";
 import { WarehouseExportToolbar } from "../../components/warehouse/WarehouseExportToolbar";
-import {
-  DELIVERY_PENDING_SAMPLE,
-  TAX_INVOICE_SAMPLE,
-  type DeliveryPendingRow,
-  type TaxInvoiceRow,
+import type {
+  DeliveryPendingRow,
+  TaxInvoiceRow,
 } from "../../data/accountingTaxInvoiceSeed";
 
 const PAGE = 10;
@@ -93,19 +91,10 @@ function Th({ children, className = "" }: { children: ReactNode; className?: str
 export function AccountingTaxInvoicePage() {
   const [tab, setTab] = useState<TabKey>("delivery");
   const [search, setSearch] = useState("");
-  const [remarks, setRemarks] = useState<Record<string, string>>(() =>
-    Object.fromEntries(DELIVERY_PENDING_SAMPLE.map((r) => [r.id, r.remark]))
-  );
+  const [remarks, setRemarks] = useState<Record<string, string>>({});
 
-  const taxRows = TAX_INVOICE_SAMPLE;
-  const deliveryRows = useMemo(
-    () =>
-      DELIVERY_PENDING_SAMPLE.map((r) => ({
-        ...r,
-        remark: remarks[r.id] ?? r.remark,
-      })),
-    [remarks]
-  );
+  const taxRows: TaxInvoiceRow[] = [];
+  const deliveryRows: DeliveryPendingRow[] = [];
 
   const taxPaged = usePaged(taxRows, search, (r: TaxInvoiceRow) =>
     [

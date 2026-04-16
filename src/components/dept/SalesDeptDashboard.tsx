@@ -96,14 +96,17 @@ function SubStatButton({
       className={`relative flex items-center justify-between gap-2 rounded-xl px-3 py-3 text-left text-xs font-semibold text-white shadow-md transition sm:text-sm ${toneClass[tone]} ${wide ? "col-span-2" : ""}`}
     >
       <span className="min-w-0 leading-tight">{label}</span>
-      <span className="shrink-0 tabular-nums rounded-full bg-white/25 px-2 py-0.5 text-[11px] font-bold">
-        {count}
-      </span>
+      {count > 0 ? (
+        <span className="shrink-0 tabular-nums rounded-full bg-white/25 px-2 py-0.5 text-[11px] font-bold">
+          {count}
+        </span>
+      ) : null}
     </button>
   );
 }
 
 function CornerTotal({ n, className }: { n: number; className: string }) {
+  if (n <= 0) return null;
   return (
     <span
       className={`absolute right-3 top-3 flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-sm font-bold text-white shadow ${className}`}
@@ -372,6 +375,7 @@ export function SalesDeptHeaderActions() {
   const navigate = useNavigate();
   const [openJobMenu, setOpenJobMenu] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const salesRequirementCount = 1;
 
   useEffect(() => {
     if (!openJobMenu) return;
@@ -437,9 +441,11 @@ export function SalesDeptHeaderActions() {
         onClick={() => navigate("/dept/sales/requirements")}
       >
         ความต้องการฝ่ายขาย
-        <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white shadow-sm">
-          1
-        </span>
+        {salesRequirementCount > 0 ? (
+          <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white shadow-sm">
+            {salesRequirementCount}
+          </span>
+        ) : null}
       </button>
     </div>
   );

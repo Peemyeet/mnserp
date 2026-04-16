@@ -1,10 +1,9 @@
--- รันครั้งเดียวเมื่อต้องการคอลัมน์เพิ่มสำหรับหน้า "ตั้งค่าผู้ใช้" (ชื่อเล่น, สถานะจ้างงาน, บริษัท, สิทธิ์ลา)
--- mysql -u root -p db_mns < database/migrations/001_user_hr_extend.sql
--- ถ้าคอลัมน์มีอยู่แล้ว MySQL จะ error — ให้ข้ามบรรทัดที่ซ้ำ
+-- PostgreSQL / Neon — คอลัมน์ HR สำหรับหน้า "ตั้งค่าผู้ใช้"
+-- รัน: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/migrations/001_user_hr_extend.sql
+-- เวอร์ชัน MySQL: database/migrations/mysql/001_user_hr_extend.sql
 
-ALTER TABLE `user_data`
-  ADD COLUMN `nickname` varchar(100) NOT NULL DEFAULT '' AFTER `lname`,
-  ADD COLUMN `employment_status` varchar(50) NOT NULL DEFAULT 'บรรจุ' AFTER `nickname`,
-  ADD COLUMN `company_display` varchar(200) NOT NULL DEFAULT '' AFTER `employment_status`,
-  ADD COLUMN `sick_leave_days` int(11) NOT NULL DEFAULT 0 AFTER `company_display`,
-  ADD COLUMN `vacation_days` int(11) NOT NULL DEFAULT 0 AFTER `sick_leave_days`;
+ALTER TABLE user_data ADD COLUMN IF NOT EXISTS nickname varchar(200) NOT NULL DEFAULT '';
+ALTER TABLE user_data ADD COLUMN IF NOT EXISTS employment_status varchar(100) NOT NULL DEFAULT 'บรรจุ';
+ALTER TABLE user_data ADD COLUMN IF NOT EXISTS company_display varchar(300) NOT NULL DEFAULT '';
+ALTER TABLE user_data ADD COLUMN IF NOT EXISTS sick_leave_days integer NOT NULL DEFAULT 0;
+ALTER TABLE user_data ADD COLUMN IF NOT EXISTS vacation_days integer NOT NULL DEFAULT 0;

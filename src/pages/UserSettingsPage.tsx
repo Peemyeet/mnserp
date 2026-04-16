@@ -353,7 +353,7 @@ export function UserSettingsPage() {
 
         {!conn.apiOk || !conn.db ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-            ยังเชื่อม MySQL ไม่ได้ — เปิด API และฐานข้อมูลก่อน จึงจะโหลดรายชื่อผู้ใช้ได้
+            ยังเชื่อมฐานข้อมูลไม่ได้ — เปิด API และตั้ง DATABASE_URL (MySQL) ก่อน จึงจะโหลดรายชื่อผู้ใช้ได้
           </div>
         ) : null}
 

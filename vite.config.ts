@@ -2,13 +2,25 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 
 /**
- * - `vite` / dev: base `/` เปิดที่ localhost ได้ตรงๆ
- * - `vite build`: base `/<ชื่อ repo>/` — บน GitHub Actions ใช้ GITHUB_REPOSITORY อัตโนมัติ
+ * - dev (`vite`): base `/`
+ * - build: ค่าเริ่มต้น `/` (Railway, โดเมนหลัก) — ถ้า deploy GitHub Pages ให้ตั้ง GITHUB_REPOSITORY หรือ VITE_BASE
  */
+function viteBase(command: string, envBase: string | undefined, repo: string): string {
+  if (command === "serve") return "/";
+  const raw = envBase?.trim();
+  if (raw) {
+    let b = raw.startsWith("/") ? raw : `/${raw}`;
+    if (b !== "/" && !b.endsWith("/")) b += "/";
+    return b;
+  }
+  if (process.env.GITHUB_REPOSITORY) return `/${repo}/`;
+  return "/";
+}
+
 export default defineConfig(({ command, mode }) => {
   const repo = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "mnserp";
-  const base = command === "serve" ? "/" : `/${repo}/`;
   const env = loadEnv(mode, process.cwd(), "");
+  const base = viteBase(command, env.VITE_BASE, repo);
   const apiProxyTarget =
     env.VITE_API_PROXY_TARGET ?? "http://127.0.0.1:8787";
 

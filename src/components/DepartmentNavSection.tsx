@@ -66,8 +66,18 @@ export function DepartmentNavSection({
           className={`h-4 w-4 shrink-0 text-slate-400 transition ${open ? "rotate-180" : ""}`}
         />
       </button>
-      {open && (
-        <ul className="space-y-0.5 border-t border-slate-100/80 px-2 py-2">
+      <div
+        className={`grid overflow-hidden transition-all duration-300 ease-out ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <ul
+          className={`min-h-0 space-y-0.5 transition-all duration-300 ease-out ${
+            open
+              ? "translate-y-0 border-t border-slate-100/80 px-2 py-2 opacity-100"
+              : "-translate-y-1 border-t-0 px-2 py-0 opacity-0"
+          }`}
+        >
           {visible.map((d, i) => {
             const Icon = ICONS[d.id];
             return (
@@ -100,7 +110,7 @@ export function DepartmentNavSection({
             );
           })}
         </ul>
-      )}
+      </div>
     </div>
   );
 }

@@ -6,7 +6,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { createSeedCompanies } from "../data/companiesSeed";
 import type { Company, CompanyInput } from "../types/company";
 
 type CompaniesContextValue = {
@@ -19,9 +18,7 @@ type CompaniesContextValue = {
 const CompaniesContext = createContext<CompaniesContextValue | null>(null);
 
 export function CompaniesProvider({ children }: { children: ReactNode }) {
-  const [companies, setCompanies] = useState<Company[]>(() =>
-    createSeedCompanies()
-  );
+  const [companies, setCompanies] = useState<Company[]>([]);
 
   const addCompany = useCallback((input: CompanyInput) => {
     setCompanies((prev) => [

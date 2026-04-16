@@ -4,11 +4,9 @@ import { Banknote, FileSpreadsheet } from "lucide-react";
 import { DeptPageFrame } from "../../components/dept/DeptPageFrame";
 import { DeptSubPageHeader } from "../../components/dept/DeptSubPageHeader";
 import { WarehouseExportToolbar } from "../../components/warehouse/WarehouseExportToolbar";
-import {
-  BILLED_WAITING_NOT_DUE_SAMPLE,
-  CASH_RECEIPT_SAMPLE,
-  type BilledWaitingReceiptRow,
-  type CashReceiptRow,
+import type {
+  BilledWaitingReceiptRow,
+  CashReceiptRow,
 } from "../../data/accountingReceiptSeed";
 
 const PAGE = 10;
@@ -122,18 +120,9 @@ export function AccountingReceiptPage() {
     if (s === "overdue") return "overdue";
     return "all";
   });
-  const [remarks, setRemarks] = useState<Record<string, string>>(() =>
-    Object.fromEntries(BILLED_WAITING_NOT_DUE_SAMPLE.map((r) => [r.id, r.remark]))
-  );
+  const [remarks, setRemarks] = useState<Record<string, string>>({});
 
-  const billedRowsAll = useMemo(
-    () =>
-      BILLED_WAITING_NOT_DUE_SAMPLE.map((r) => ({
-        ...r,
-        remark: remarks[r.id] ?? r.remark,
-      })),
-    [remarks]
-  );
+  const billedRowsAll: BilledWaitingReceiptRow[] = [];
 
   const billedRows = useMemo(() => {
     const t = todayIsoDate();
@@ -148,7 +137,7 @@ export function AccountingReceiptPage() {
     );
   }, [billedRowsAll, scope]);
 
-  const receiptRows = CASH_RECEIPT_SAMPLE;
+  const receiptRows: CashReceiptRow[] = [];
 
   const billedPaged = usePaged(billedRows, search, (r: BilledWaitingReceiptRow) =>
     [r.billNo, r.customer, r.company, r.remark].join(" ")

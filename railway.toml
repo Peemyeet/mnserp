@@ -1,0 +1,9 @@
+# https://docs.railway.com/reference/config-as-code
+# โปรเจกต์เดียว: build หน้าเว็บ + ติดตั้ง server แล้ว `npm start` เสิร์ฟทั้ง `/` (SPA) และ `/api`
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install --include=dev && npm run build && npm install --prefix server"
+
+[deploy]
+startCommand = "node server/index.mjs"

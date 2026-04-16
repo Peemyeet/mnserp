@@ -12,15 +12,6 @@ import { DeptPageHeader } from "../../components/dept/DeptPageHeader";
 import { ChartCardShell } from "../../components/dept/ChartCardShell";
 import { useMnsDeptReport } from "../../hooks/useMnsDeptReport";
 
-const trendFallback = [
-  { x: "W1", v: 12 },
-  { x: "W2", v: 18 },
-  { x: "W3", v: 15 },
-  { x: "W4", v: 22 },
-  { x: "W5", v: 20 },
-  { x: "W6", v: 28 },
-];
-
 function fmt(n: number) {
   return new Intl.NumberFormat("th-TH").format(n);
 }
@@ -31,7 +22,7 @@ export function PurchaseDeptReport() {
   const trendData =
     fromDb && purchase?.trend && purchase.trend.length > 0
       ? purchase.trend
-      : trendFallback;
+      : [];
 
   return (
     <DeptPageFrame>
@@ -52,7 +43,9 @@ export function PurchaseDeptReport() {
           </span>
         )}
         {!loading && !fromDb && (
-          <span>โหมดตัวอย่าง — ยังไม่ได้เชื่อม MySQL หรือไม่มีข้อมูล</span>
+          <span>
+            ยังไม่มีข้อมูลจากฐานข้อมูล — import <code className="rounded bg-slate-100 px-1 text-xs">mns_pm_2021.sql</code> แล้วลองใหม่
+          </span>
         )}
       </p>
 
@@ -77,27 +70,33 @@ export function PurchaseDeptReport() {
 
       <ChartCardShell
         title={
-          fromDb && purchase?.trend && purchase.trend.length > 0
+          trendData.length > 0
             ? "จำนวนใบสั่งซื้อต่อเดือน (bill_order)"
-            : "แนวโน้มการสั่งซื้อ (ตัวอย่าง)"
+            : "จำนวนใบสั่งซื้อต่อเดือน"
         }
       >
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={trendData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="x" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} />
-            <Tooltip />
-            <Area
-              type="monotone"
-              dataKey="v"
-              name={fromDb ? "จำนวน PO ต่อเดือน" : "จำนวน PO"}
-              stroke="#7c3aed"
-              fill="#c4b5fd"
-              fillOpacity={0.5}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        {trendData.length === 0 ? (
+          <p className="py-16 text-center text-sm text-slate-500">
+            ไม่มีข้อมูลแนวโน้ม — ตรวจสอบ bill_order หลังนำเข้าฐานข้อมูล
+          </p>
+        ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={trendData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="x" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <Area
+                type="monotone"
+                dataKey="v"
+                name="จำนวน PO ต่อเดือน"
+                stroke="#7c3aed"
+                fill="#c4b5fd"
+                fillOpacity={0.5}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </ChartCardShell>
     </DeptPageFrame>
   );

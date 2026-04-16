@@ -20,37 +20,7 @@ type PoArrivedRow = {
   stockQty: number;
 };
 
-/** ตัวอย่างข้อมูล — เชื่อม API จริงเมื่อพร้อม */
-const MOCK_ROWS: PoArrivedRow[] = [
-  {
-    id: 1,
-    category: "production",
-    daysMoved: 64,
-    customerPo: "TH5805-P219948",
-    serviceNo: "MG692935 (S)",
-    jobName: "Assy,Cable,Pogo Pin",
-    engineer: "",
-    sales: "เจริญ คิดโสดา",
-    customer: "Western Digital Storage Technologies (Thailand) Ltd.",
-    qtyDone: 0,
-    qtyTotal: 2,
-    stockQty: 0,
-  },
-  {
-    id: 2,
-    category: "repair",
-    daysMoved: 83,
-    customerPo: "6000139271",
-    serviceNo: "ST883201 (R)",
-    jobName: "COML,PCB,COMPUTER FIFO PCB...",
-    engineer: "",
-    sales: "เจริญ คิดโสดา",
-    customer: "Seagate Technology (Thailand) Ltd.",
-    qtyDone: 0,
-    qtyTotal: 5,
-    stockQty: 0,
-  },
-];
+const MOCK_ROWS: PoArrivedRow[] = [];
 
 const CATEGORY_META: Record<
   PoCategory,

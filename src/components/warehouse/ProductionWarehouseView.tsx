@@ -1,20 +1,26 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-react";
-import {
-  PRODUCTION_STOCK_SEED,
-  type StockPartRow,
-} from "../../data/warehouseInventorySeed";
+import { Link } from "react-router-dom";
+import type { StockPartRow } from "../../data/warehouseInventorySeed";
+import { useWarehouseStoreData } from "../../hooks/useWarehouseStoreData";
 import { WarehouseExportToolbar } from "./WarehouseExportToolbar";
 import { SortableTh } from "./SortableTh";
 
 const PAGE_SIZE = 10;
 
+const NO_ACTION =
+  "ฟังก์ชันนี้ยังไม่เชื่อมฐานข้อมูล — แก้ไขจำนวน/สถานะผ่านระบบเดิมหรือรอ API";
+
 type SortKey = keyof StockPartRow;
 
 export function ProductionWarehouseView() {
-  const [rows, setRows] = useState<StockPartRow[]>(() =>
-    PRODUCTION_STOCK_SEED.map((r) => ({ ...r }))
-  );
+  const { loading: storeLoading, error: storeError, fromDb, stockRows: apiRows } =
+    useWarehouseStoreData("production");
+  const [rows, setRows] = useState<StockPartRow[]>([]);
+
+  useEffect(() => {
+    setRows(apiRows);
+  }, [apiRows]);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("mnsPartNo");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
@@ -69,10 +75,6 @@ export function ProductionWarehouseView() {
     setPage(1);
   };
 
-  const updateRow = (id: string, patch: Partial<StockPartRow>) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-  };
-
   const exportMatrix = {
     head: [
       "No.",
@@ -105,19 +107,35 @@ export function ProductionWarehouseView() {
           คลังผลิต / Production stock
         </h1>
         <p className="text-sm text-slate-500">Production warehouse</p>
+        {storeLoading && (
+          <p className="mt-1 text-xs text-violet-600">กำลังโหลดจาก store_data (หมวด PCB รอผลิต)…</p>
+        )}
+        {!storeLoading && storeError && (
+          <p className="mt-1 text-xs text-rose-600">{storeError}</p>
+        )}
+        {!storeLoading && fromDb && !storeError && (
+          <p className="mt-1 text-xs text-emerald-700">
+            แสดงข้อมูลจริงจาก MySQL ({rows.length} รายการ)
+          </p>
+        )}
+        {!storeLoading && !fromDb && !storeError && (
+          <p className="mt-1 text-xs text-slate-500">เชื่อม API + ฐานข้อมูลเพื่อโหลดรายการ</p>
+        )}
       </header>
 
       <div className="p-4 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
-          <button
-            type="button"
+          <Link
+            to="/warehouse/production/add"
             className="rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-600"
           >
             เพิ่มสินค้าในคลัง
-          </button>
+          </Link>
           <button
             type="button"
-            className="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-600"
+            disabled
+            title={NO_ACTION}
+            className="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-45"
           >
             กำลังดำเนินการ
           </button>
@@ -211,52 +229,38 @@ export function ProductionWarehouseView() {
                     <td className="px-3 py-2 font-semibold text-violet-600">
                       {r.qty}
                     </td>
-                    <td className="px-3 py-2">
-                      <input
-                        type="text"
-                        value={r.remark}
-                        onChange={(e) =>
-                          updateRow(r.id, { remark: e.target.value })
-                        }
-                        className="w-full min-w-[100px] rounded border border-slate-200 px-2 py-1 text-sm"
-                      />
+                    <td className="max-w-[180px] px-3 py-2 text-slate-700">
+                      {r.remark || "—"}
                     </td>
-                    <td className="px-3 py-2">
-                      <input
-                        type="number"
-                        min={0}
-                        value={r.processingQty}
-                        onChange={(e) =>
-                          updateRow(r.id, {
-                            processingQty: Math.max(
-                              0,
-                              Number(e.target.value) || 0
-                            ),
-                          })
-                        }
-                        className="w-20 rounded border border-slate-200 px-2 py-1 text-sm"
-                      />
+                    <td className="px-3 py-2 tabular-nums text-slate-700">
+                      {r.processingQty}
                     </td>
                     <td className="px-3 py-2 text-slate-600">{r.location}</td>
                     <td className="px-3 py-2">
                       <div className="flex gap-1">
                         <button
                           type="button"
-                          className="rounded p-1.5 text-emerald-600 hover:bg-emerald-50"
+                          disabled
+                          title={NO_ACTION}
+                          className="rounded p-1.5 text-slate-400 disabled:cursor-not-allowed"
                           aria-label="ส่งออก"
                         >
                           <ChevronRight className="h-4 w-4" />
                         </button>
                         <button
                           type="button"
-                          className="rounded p-1.5 text-slate-500 hover:bg-slate-100"
+                          disabled
+                          title={NO_ACTION}
+                          className="rounded p-1.5 text-slate-400 disabled:cursor-not-allowed"
                           aria-label="ถอยกลับ"
                         >
                           <ChevronLeft className="h-4 w-4" />
                         </button>
                         <button
                           type="button"
-                          className="rounded p-1.5 text-slate-500 hover:bg-slate-100"
+                          disabled
+                          title={NO_ACTION}
+                          className="rounded p-1.5 text-slate-400 disabled:cursor-not-allowed"
                           aria-label="ถัดไป"
                         >
                           <ChevronRight className="h-4 w-4" />

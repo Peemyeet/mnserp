@@ -65,7 +65,7 @@ export async function mnsFetch<T>(
   return data as T;
 }
 
-/** ทดสอบว่า API + MySQL พร้อมหรือไม่ */
+/** ทดสอบว่า API + ฐานข้อมูล (MySQL) พร้อมหรือไม่ */
 export async function getMnsDbReady(): Promise<boolean> {
   const c = await getMnsConnection();
   return c.apiOk && c.db;

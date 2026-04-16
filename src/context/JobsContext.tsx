@@ -7,7 +7,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { createSeedJobs } from "../data/jobsSeed";
 import {
   mapDbJobRow,
   parseMnsNumericId,
@@ -17,7 +16,7 @@ import { useMnsConnection } from "./MnsConnectionContext";
 import { mnsFetch } from "../services/mnsApi";
 import type { Job, JobInput } from "../types/job";
 
-type DataSource = "seed" | "mysql";
+type DataSource = "live";
 
 type JobsContextValue = {
   jobs: Job[];
@@ -29,14 +28,10 @@ type JobsContextValue = {
 
 const JobsContext = createContext<JobsContextValue | null>(null);
 
-function newId() {
-  return `job-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
 export function JobsProvider({ children }: { children: ReactNode }) {
   const conn = useMnsConnection();
-  const [jobs, setJobs] = useState<Job[]>(() => createSeedJobs());
-  const [dataSource, setDataSource] = useState<DataSource>("seed");
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [dataSource] = useState<DataSource>("live");
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -45,6 +40,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         if (!conn.apiOk || !conn.db) {
+          setJobs([]);
           setHydrated(true);
           return;
         }
@@ -53,13 +49,13 @@ export function JobsProvider({ children }: { children: ReactNode }) {
         );
         if (cancelled) return;
         if (!res.ok || !Array.isArray(res.rows)) {
+          setJobs([]);
           setHydrated(true);
           return;
         }
         setJobs(res.rows.map(mapDbJobRow));
-        setDataSource("mysql");
       } catch {
-        /* seed */
+        setJobs([]);
       } finally {
         if (!cancelled) setHydrated(true);
       }
@@ -71,48 +67,38 @@ export function JobsProvider({ children }: { children: ReactNode }) {
 
   const addJob = useCallback(
     async (input: JobInput) => {
-      if (dataSource === "mysql") {
-        const custRes = await mnsFetch<{ rows: { cus_id: number; cus_name: string }[] }>(
-          "/customers?limit=2000"
+      const custRes = await mnsFetch<{ rows: { cus_id: number; cus_name: string }[] }>(
+        "/customers?limit=2000"
+      );
+      const match = custRes.rows.find(
+        (r) =>
+          (r.cus_name ?? "").trim().toLowerCase() ===
+          input.customerName.trim().toLowerCase()
+      );
+      if (!match) {
+        throw new Error(
+          "ไม่พบลูกค้าชื่อนี้ในฐานข้อมูล — กรุณาใช้ชื่อตรงกับที่ลงทะเบียน หรือเพิ่มลูกค้าที่ตั้งค่าก่อน"
         );
-        const match = custRes.rows.find(
-          (r) =>
-            (r.cus_name ?? "").trim().toLowerCase() ===
-            input.customerName.trim().toLowerCase()
-        );
-        if (!match) {
-          throw new Error(
-            "ไม่พบลูกค้าชื่อนี้ในฐานข้อมูล — กรุณาใช้ชื่อตรงกับที่ลงทะเบียน หรือเพิ่มลูกค้าที่ตั้งค่าก่อน"
-          );
-        }
-        const created = await mnsFetch<{ row: DbJobRow }>("/jobs", {
-          method: "POST",
-          body: JSON.stringify({
-            customer_id: match.cus_id,
-            product_name: input.jobName,
-            job_po: input.customerPO,
-            currentStageCode: input.currentStageCode,
-            serviceNumber: input.serviceNumber.trim(),
-            info: `บันทึกจาก ERP web: ${input.serviceNumber}`,
-          }),
-        });
-        setJobs((prev) => [mapDbJobRow(created.row), ...prev]);
-        return;
       }
-
-      const row: Job = {
-        ...input,
-        id: newId(),
-        enteredStageAt: new Date().toISOString(),
-      };
-      setJobs((prev) => [row, ...prev]);
+      const created = await mnsFetch<{ row: DbJobRow }>("/jobs", {
+        method: "POST",
+        body: JSON.stringify({
+          customer_id: match.cus_id,
+          product_name: input.jobName,
+          job_po: input.customerPO,
+          currentStageCode: input.currentStageCode,
+          serviceNumber: input.serviceNumber.trim(),
+          info: `บันทึกจาก ERP web: ${input.serviceNumber}`,
+        }),
+      });
+      setJobs((prev) => [mapDbJobRow(created.row), ...prev]);
     },
-    [dataSource]
+    []
   );
 
   const moveJobToStage = useCallback(
     async (jobId: string, stageCode: string) => {
-      if (dataSource === "mysql" && parseMnsNumericId(jobId) != null) {
+      if (parseMnsNumericId(jobId) != null) {
         try {
           await mnsFetch(`/jobs/${jobId}/stage`, {
             method: "PATCH",
@@ -134,7 +120,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
         )
       );
     },
-    [dataSource]
+    []
   );
 
   const value = useMemo(

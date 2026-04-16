@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPool } from "../db.mjs";
+import { getPool, isMissingColumnError } from "../db.mjs";
 
 const r = Router();
 
@@ -37,7 +37,7 @@ function parseFilterUserId(req) {
   return null;
 }
 
-/** รีพอร์ตฝ่ายขาย — จาก bill_quota, job_data, user_data */
+/** รีพอร์ตฝ่ายขาย — จาก bill_quota, job_data, user_data (MySQL) */
 r.get("/sales", async (req, res) => {
   try {
     const p = getPool();
@@ -134,7 +134,7 @@ r.get("/sales", async (req, res) => {
     let wgRows;
     if (period === "day") {
       const [rows] = await p.query(
-        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', j.workgroup_id)) AS wg_name,
+        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR))) AS wg_name,
                 j.workgroup_id, COUNT(*) AS cnt
          FROM job_data j
          LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id
@@ -148,7 +148,7 @@ r.get("/sales", async (req, res) => {
       wgRows = rows;
     } else if (period === "month") {
       const [rows] = await p.query(
-        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', j.workgroup_id)) AS wg_name,
+        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR))) AS wg_name,
                 j.workgroup_id, COUNT(*) AS cnt
          FROM job_data j
          LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id
@@ -162,7 +162,7 @@ r.get("/sales", async (req, res) => {
       wgRows = rows;
     } else if (period === "quarter") {
       const [rows] = await p.query(
-        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', j.workgroup_id)) AS wg_name,
+        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR))) AS wg_name,
                 j.workgroup_id, COUNT(*) AS cnt
          FROM job_data j
          LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id
@@ -177,7 +177,7 @@ r.get("/sales", async (req, res) => {
     } else {
       const y0 = year - 4;
       const [rows] = await p.query(
-        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', j.workgroup_id)) AS wg_name,
+        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR))) AS wg_name,
                 j.workgroup_id, COUNT(*) AS cnt
          FROM job_data j
          LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id
@@ -201,7 +201,7 @@ r.get("/sales", async (req, res) => {
              TRIM(CONCAT(COALESCE(u.fname,''), ' ', COALESCE(u.lname,''))) AS fullname,
              COALESCE(a.actual_baht, 0) AS actual_baht,
              CASE
-               WHEN IFNULL(u.sales_target_baht, 0) > 0 THEN u.sales_target_baht
+               WHEN COALESCE(u.sales_target_baht, 0) > 0 THEN u.sales_target_baht
                WHEN COALESCE(a.actual_baht, 0) > 0 THEN GREATEST(a.actual_baht * 1.12, 50000)
                ELSE 0
              END AS target_baht
@@ -213,7 +213,7 @@ r.get("/sales", async (req, res) => {
       ) a ON a.user_id = u.user_id
       WHERE u.public = 1
         AND (
-          IFNULL(u.sales_target_baht, 0) > 0
+          COALESCE(u.sales_target_baht, 0) > 0
           OR COALESCE(a.actual_baht, 0) > 0
         )
       ORDER BY COALESCE(a.actual_baht, 0) DESC
@@ -236,7 +236,7 @@ r.get("/sales", async (req, res) => {
       const [rows] = await p.query(KPI_WITH_TARGET);
       kpiAll = rows;
     } catch (e) {
-      if (e.code === "ER_BAD_FIELD_ERROR") {
+      if (isMissingColumnError(e)) {
         const [rows] = await p.query(KPI_LEGACY);
         kpiAll = rows;
       } else {
@@ -286,7 +286,7 @@ r.get("/production", async (req, res) => {
   try {
     const p = getPool();
     const [rows] = await p.query(
-      `SELECT COALESCE(wg.wg_name, CONCAT('WG ', j.workgroup_id)) AS name,
+      `SELECT COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR))) AS name,
               COUNT(*) AS cnt
        FROM job_data j
        LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id
@@ -316,7 +316,7 @@ r.get("/purchase", async (req, res) => {
       `SELECT DATE_FORMAT(bo_date, '%Y-%m') AS ym, COUNT(*) AS cnt
        FROM bill_order
        WHERE bo_date IS NOT NULL AND bo_date > '1900-01-01'
-       GROUP BY ym
+       GROUP BY DATE_FORMAT(bo_date, '%Y-%m')
        ORDER BY ym ASC
        LIMIT 36`
     );

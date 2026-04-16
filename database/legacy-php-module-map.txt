@@ -1,0 +1,91 @@
+================================================================================
+แผนที่โมดูล PHP (legacy) → ตาราง MySQL — ใช้ออกแบบ API / migration โดยไม่ลอกโค้ดเก่า
+================================================================================
+
+หลักการ: ดึงประโยชน์จากไฟล์ PHP เป็น "สเปก" — ชื่อตาราง ฟิลด์ที่แตะใน SQL
+         โค้ด PHP ต่อสตริงเข้า SQL เสี่ยง SQL injection — อย่าลอกแบบนั้นใน Node
+
+--------------------------------------------------------------------------------
+1) คลังอะไหล่ / Store Part (ตัวอย่าง store_part.php)
+--------------------------------------------------------------------------------
+UI โหลดรายการจาก json → ตารางหลัก:
+  store_data        รายการอะไหล่ในคลัง (s_no, s_name, s_num, ที่เก็บ, ฯลฯ)
+  store_category    หมวด / sub (category_id, parent, …)
+  img_store         รูปอ้างอิง (ถ้ามี)
+บันทึกฟอร์มมักผ่าน action_store.php → INSERT/UPDATE store_data
+
+ใน database/db_mns.sql มี store_data + store_category อยู่แล้ว (dump 2020)
+
+--------------------------------------------------------------------------------
+2) รับใบวางบิล (ตัวอย่าง action_create_bill_receive.php)
+--------------------------------------------------------------------------------
+action=add:
+  bill_receive              หัวเอกสารการรับ (rec_number, rec_no, rec_date, …)
+  bill_receive_list         ผูก rec_id กับ bil_id
+  billing_note              อัปเดต bil_status (เช่น เป็น '1' เมื่อรับแล้ว)
+  plan_bill_receive         สำเนาแผน (ชุด plan_*)
+  plan_bill_receive_list
+  plan_billing_note
+
+action=del / cancel_rec_id / note_receive / addpicture:
+  แก้ bill_receive, bill_receive_list, billing_note, img_receive (ไฟล์ในโฟลเดอร์ img/)
+
+หมายเหตุสำคัญ:
+  ใน database/db_mns.sql ของ repo นี้มีตาราง bill_receiver (br_id, bo_no, …)
+  ซึ่งเป็นคนละโมดูลกับ bill_receive ของ PHP ด้านบน
+  ถ้าต้องการโมดูลรับใบวางบิลแบบ PHP — ต้องมี schema จากเซิร์ฟเวอร์จริง:
+    SHOW CREATE TABLE bill_receive;
+    SHOW CREATE TABLE billing_note;
+    … แล้วนำมาเป็น migration แยก (ห้ามเดาโครง billing_note ยาวๆ ใน repo ถ้ายังไม่ export)
+
+--------------------------------------------------------------------------------
+3) รายงานขาย JSON (ตัวอย่าง json_report_sale.php)
+--------------------------------------------------------------------------------
+จุดประสงค์: ส่ง JSON ให้ DataTables / หน้า report — พารามิเตอร์เช่น tab, year, month, user_id
+
+แท็บ tab=1 (เงินเข้า / pay-in ผูกกับใบรับ-ใบวางบิล-ส่งของ-ใบเสนอราคา):
+  bill_payin, bill_payin_list, bill_receive, bill_receive_list,
+  billing_note, billing_note_list, bill_invoice, bill_invoice_list,
+  bill_delivery, bill_quota, job_data, profile, customer
+  + รูปแนบ: img_get_money (ดูจาก payin_id)
+
+แท็บ tab=2 (ใบเสนอราคา / quota):
+  bill_quota, job_data, customer
+
+แท็บ tab=3 (PO / มี job_po):
+  job_data, bill_quota, customer
+  หมายเหตุ: ในโค้ดมีบรรทัดคำนวณ total/vat จาก unit_price, job_amount, quota_discount
+           แต่ SELECT ไม่ได้ดึง unit_price / job_amount / quota_discount — น่าจะบั๊ก copy-paste
+           ถ้า port ไป Node ควรแก้ SELECT หรือใช้ grand_total ตามธุรกิจ
+
+แท็บ tab=4 (ใบวางบิลที่ยังไม่ผูก pay-in บางเงื่อนไข):
+  billing_note → … → bill_delivery, bill_quota, job_data, profile, customer
+  + ตรวจซ้ำกับ bill_payin / bill_receive_list ว่า bil_id ยังไม่มีการรับเงิน
+
+แท็บ tab=bill_duedate:
+  โซ่คล้าย tab 1 แต่กรองปี-เดือนที่ bill_due_date
+
+ความสัมพันธ์กับ database/db_mns.sql:
+  มี bill_quota, job_data, profile, customer — แท็บ 2 (และทฤษฎีแท็บ 3 ถ้าแก้ SELECT) ใช้ได้กับ dump นี้
+  ไม่มี bill_payin, billing_note, bill_delivery, … — แท็บ 1/4/bill_duedate ต้องมี schema จากระบบ PHP เต็ม
+
+ความเสี่ยง: ต่อ $_REQUEST เข้า SQL โดยตรง — อย่าลอกใน API ใหม่
+
+--------------------------------------------------------------------------------
+4) วิธีตรวจว่าฐานคุณมีตาราง legacy หรือยัง
+--------------------------------------------------------------------------------
+บน MySQL:
+  SHOW TABLES LIKE 'bill%';
+  SHOW TABLES LIKE 'store%';
+
+ผ่าน API โปรเจกต์นี้ (หลังรัน server):
+  GET http://127.0.0.1:8787/api/legacy-tables
+  → JSON บอกว่าแต่ละตารางที่รู้จักมีหรือไม่ (อ่านอย่างเดียว)
+
+--------------------------------------------------------------------------------
+5) ทางเลือกพัฒนา Node/React ให้ได้ประโยชน์สูงสุดแบบไม่พัง
+--------------------------------------------------------------------------------
+- ใช้ legacy-tables ก่อนลงมือเขียน route ใหม่ — รู้ว่าฐานพร้อมหรือยัง
+- ออกแบบ API ใหม่ด้วย parameterized query / ชั้น service ชัดเจน
+- ถ้ายังไม่มีตาราง bill_receive — อย่า mount route ที่ SELECT ตารางนั้นใน health หลัก
+- Export schema + ข้อมูลจาก production มาก่อน ถ้าต้อง parity กับ PHP

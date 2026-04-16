@@ -6,7 +6,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { IT_REPORT_SEED } from "../data/itReportSeed";
 import type { ItReportRow } from "../types/itReport";
 import type { PmUser } from "../types/pmUser";
 
@@ -27,9 +26,7 @@ type ItSupportContextValue = {
 const ItSupportContext = createContext<ItSupportContextValue | null>(null);
 
 export function ItSupportProvider({ children }: { children: ReactNode }) {
-  const [rows, setRows] = useState<ItReportRow[]>(() =>
-    IT_REPORT_SEED.map((r) => ({ ...r }))
-  );
+  const [rows, setRows] = useState<ItReportRow[]>([]);
   const [unreadIds, setUnreadIds] = useState<Set<string>>(() => new Set());
 
   const patchRow = useCallback((id: string, patch: Partial<ItReportRow>) => {

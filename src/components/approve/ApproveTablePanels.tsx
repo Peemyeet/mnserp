@@ -114,18 +114,20 @@ export function ApprovePrNoJobPanel() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
-              <th className="w-10 px-3 py-3">
-                <Check className="h-4 w-4 text-violet-600" />
+            <tr className="border-b border-slate-200 bg-white text-left text-xs font-semibold text-slate-500">
+              <th className="w-10 border-r border-slate-100 px-3 py-3">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-violet-500 text-white">
+                  <Check className="h-3 w-3" />
+                </span>
               </th>
-              <th className="px-3 py-3">Date Open PR</th>
-              <th className="px-3 py-3">PR</th>
-              <th className="px-3 py-3">Market</th>
-              <th className="px-3 py-3">Price (Total)</th>
-              <th className="px-3 py-3">VAT</th>
-              <th className="px-3 py-3">User Require</th>
-              <th className="px-3 py-3">Part List</th>
-              <th className="px-3 py-3">Manage</th>
+              <th className="border-r border-slate-100 px-3 py-3">Date Open PR</th>
+              <th className="border-r border-slate-100 px-3 py-3">PR</th>
+              <th className="border-r border-slate-100 px-3 py-3">Market</th>
+              <th className="border-r border-slate-100 px-3 py-3">Price (Total)</th>
+              <th className="border-r border-slate-100 px-3 py-3">VAT</th>
+              <th className="border-r border-slate-100 px-3 py-3">User Require</th>
+              <th className="border-r border-slate-100 px-3 py-3">Part List</th>
+              <th className="border-r border-slate-100 px-3 py-3">Manage</th>
               <th className="px-3 py-3">ใบเสนอราคา</th>
             </tr>
           </thead>
@@ -133,18 +135,18 @@ export function ApprovePrNoJobPanel() {
             {slice.map((r, i) => (
               <tr
                 key={r.id}
-                className={i % 2 ? "bg-slate-50/50" : "bg-white"}
+                className={`${i % 2 ? "bg-white" : "bg-white"} border-b border-slate-100`}
               >
-                <td className="px-3 py-2">
-                  <input type="checkbox" className="rounded border-slate-300" />
+                <td className="border-r border-slate-100 px-3 py-2">
+                  <input type="checkbox" className="h-4 w-4 rounded-full border-slate-300" />
                 </td>
-                <td className="px-3 py-2 text-slate-700">{r.dateOpen}</td>
-                <td className="px-3 py-2">-</td>
-                <td className="px-3 py-2">-</td>
-                <td className="px-3 py-2">{r.price}</td>
-                <td className="px-3 py-2">{r.vat}</td>
-                <td className="px-3 py-2">-</td>
-                <td className="px-3 py-2">
+                <td className="border-r border-slate-100 px-3 py-2 text-slate-700">{r.dateOpen}</td>
+                <td className="border-r border-slate-100 px-3 py-2">-</td>
+                <td className="border-r border-slate-100 px-3 py-2">-</td>
+                <td className="border-r border-slate-100 px-3 py-2">{r.price}</td>
+                <td className="border-r border-slate-100 px-3 py-2">{r.vat}</td>
+                <td className="border-r border-slate-100 px-3 py-2">-</td>
+                <td className="border-r border-slate-100 px-3 py-2">
                   <button
                     type="button"
                     className="text-teal-600 hover:text-teal-800"
@@ -153,7 +155,7 @@ export function ApprovePrNoJobPanel() {
                     <Folder className="h-5 w-5" />
                   </button>
                 </td>
-                <td className="px-3 py-2">
+                <td className="border-r border-slate-100 px-3 py-2">
                   <button
                     type="button"
                     className="text-violet-600 hover:text-violet-800"
@@ -162,7 +164,7 @@ export function ApprovePrNoJobPanel() {
                     <Printer className="h-5 w-5" />
                   </button>
                 </td>
-                <td className="px-3 py-2 text-sm font-medium text-red-500">
+                <td className="px-3 py-2 text-sm font-medium text-rose-500">
                   ไม่มีไฟล์แนบ
                 </td>
               </tr>

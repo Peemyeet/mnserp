@@ -1,9 +1,6 @@
 import { useMemo } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
-import {
-  canSeeAllSalesKpi,
-  getSalesKpiRowsForUser,
-} from "../../auth/salesKpiAccess";
+import { canSeeAllSalesKpi } from "../../auth/salesKpiAccess";
 import { useAuth } from "../../context/AuthContext";
 import type { SalesPersonKpiRow } from "../../data/salesKpiSeed";
 
@@ -46,18 +43,16 @@ function mapLiveToSeed(live: LiveSalesKpiRow[]): SalesPersonKpiRow[] {
 }
 
 export function SalesDeptKpiTable({
+  connectedToDb,
   liveKpi,
 }: {
-  /** ถ้าเป็น `undefined` ใช้ seed — ถ้าเป็น array จาก API ใช้ข้อมูลจริง */
-  liveKpi?: LiveSalesKpiRow[] | undefined;
+  connectedToDb: boolean;
+  liveKpi: LiveSalesKpiRow[];
 }) {
   const { user } = useAuth();
-  const rows = useMemo(() => {
-    if (liveKpi !== undefined) return mapLiveToSeed(liveKpi);
-    return getSalesKpiRowsForUser(user);
-  }, [liveKpi, user]);
+  const rows = useMemo(() => mapLiveToSeed(liveKpi), [liveKpi]);
   const showAll = canSeeAllSalesKpi(user);
-  const fromDb = liveKpi !== undefined;
+  const fromDb = connectedToDb;
 
   return (
     <div className="space-y-3">
@@ -67,19 +62,11 @@ export function SalesDeptKpiTable({
             แสดง KPI จากฐานข้อมูล (bill_quota รวมตามผู้ใช้)
             {showAll ? " — ภาพรวมทุกคนที่มียอด" : " — เฉพาะบัญชีของคุณ"}
           </>
-        ) : showAll ? (
-          <>
-            สิทธิ์ผู้ดูแลภาพรวม — แสดง KPI ของพนักขายทุกคน (หน้า{" "}
-            <strong className="text-slate-800">ทำงาน</strong> และกราฟด้านบนยังเป็นภาพรวมทั้งแผนก)
-          </>
         ) : (
-          <>
-            แสดงเฉพาะ KPI ของบัญชีที่เข้าสู่ระบบ (
-            <span className="font-medium text-slate-800">
-              {user?.displayNameTh ?? user?.username}
-            </span>
-            ) — ภาพรวมแผนกดูได้ที่กราฟ &quot;ภาพรวมยอดขาย&quot; ด้านบน
-          </>
+          <span>
+            ยังไม่มี KPI จากฐานข้อมูล — เปิด API และ import ข้อมูล (bill_quota / user_data)
+            {showAll ? "" : ` — บัญชี ${user?.displayNameTh ?? user?.username ?? ""}`}
+          </span>
         )}
       </p>
 

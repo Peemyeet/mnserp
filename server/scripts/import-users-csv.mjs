@@ -11,7 +11,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { config } from "dotenv";
-import mysql from "mysql2/promise";
+import { closePool, getPool } from "../db.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 config({ path: path.join(__dirname, "..", ".env"), override: true });
@@ -78,12 +78,12 @@ function loginStatusFromStatus(th) {
   return 0;
 }
 
-async function loadColumns(conn) {
-  const [rows] = await conn.query(
-    `SELECT COLUMN_NAME AS n FROM INFORMATION_SCHEMA.COLUMNS
-     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_data'`
+async function loadColumns(p) {
+  const [rows] = await p.query(
+    `SELECT column_name AS n FROM information_schema.columns
+     WHERE table_schema = 'public' AND table_name = 'user_data'`
   );
-  return new Set((rows ?? []).map((r) => r.n));
+  return new Set((rows ?? []).map((r) => String(r.n).toLowerCase()));
 }
 
 async function main() {
@@ -115,24 +115,16 @@ async function main() {
 
   const dataRows = table.slice(1);
 
-  const host = process.env.MNS_DB_HOST ?? "127.0.0.1";
-  const port = Number(process.env.MNS_DB_PORT) || 3306;
-  const user = process.env.MNS_DB_USER ?? "root";
-  const password = process.env.MNS_DB_PASSWORD ?? "";
-  const db = (process.env.MNS_DB_NAME ?? "db_mns").replace(/[^a-zA-Z0-9_]/g, "") || "db_mns";
+  if (!process.env.DATABASE_URL?.trim()) {
+    console.error("ต้องตั้ง DATABASE_URL ใน server/.env (mysql://)");
+    process.exit(1);
+  }
 
-  const conn = await mysql.createConnection({
-    host,
-    port,
-    user,
-    password,
-    database: db,
-  });
+  const p = getPool();
+  const col = await loadColumns(p);
+  const has = (c) => col.has(String(c).toLowerCase());
 
-  const col = await loadColumns(conn);
-  const has = (c) => col.has(c);
-
-  const [dbUsers] = await conn.query(
+  const [dbUsers] = await p.query(
     `SELECT user_id, fname, lname, phonenumber FROM user_data WHERE public = 1`
   );
 
@@ -249,12 +241,12 @@ async function main() {
     if (dryRun) {
       console.log("[dry-run] user_id", u.user_id, row[1], "->", sql.slice(0, 120) + "...");
     } else {
-      await conn.query(sql, vals);
+      await p.query(sql, vals);
     }
     updated++;
   }
 
-  await conn.end();
+  await closePool();
 
   console.log(
     dryRun ? "[dry-run] " : "",

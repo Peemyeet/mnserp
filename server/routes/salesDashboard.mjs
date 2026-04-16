@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPool } from "../db.mjs";
+import { getPool, isMissingColumnError } from "../db.mjs";
 
 const r = Router();
 
@@ -75,7 +75,7 @@ r.get("/dashboard", async (req, res) => {
              TRIM(CONCAT(COALESCE(u.fname,''), ' ', COALESCE(u.lname,''))) AS fullname,
              COALESCE(a.actual_baht, 0) AS actual_baht,
              CASE
-               WHEN IFNULL(u.sales_target_baht, 0) > 0 THEN u.sales_target_baht
+               WHEN COALESCE(u.sales_target_baht, 0) > 0 THEN u.sales_target_baht
                WHEN COALESCE(a.actual_baht, 0) > 0 THEN GREATEST(a.actual_baht * 1.12, 50000)
                ELSE 0
              END AS target_baht
@@ -103,7 +103,7 @@ r.get("/dashboard", async (req, res) => {
       const [rows] = await p.query(KPI_WITH_TARGET, [uid]);
       kpiRow = rows?.[0] ?? null;
     } catch (e) {
-      if (e.code === "ER_BAD_FIELD_ERROR") {
+      if (isMissingColumnError(e)) {
         const [rows] = await p.query(KPI_LEGACY, [uid]);
         kpiRow = rows?.[0] ?? null;
       } else {

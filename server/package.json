@@ -1,17 +1,24 @@
 {
-  "name": "erp-mns-api",
+  "name": "mns-api",
   "private": true,
   "type": "module",
   "scripts": {
+    "prisma": "node scripts/prisma-with-db-env.mjs",
     "start": "node index.mjs",
     "dev": "node --watch index.mjs",
     "db:setup": "node scripts/setup-database.mjs",
-    "db:import-users": "node scripts/import-users-csv.mjs"
+    "db:import-users": "node scripts/import-users-csv.mjs",
+    "db:generate": "node scripts/prisma-with-db-env.mjs generate",
+    "db:validate": "node scripts/prisma-with-db-env.mjs validate",
+    "db:push": "node scripts/prisma-with-db-env.mjs db push",
+    "db:migrate:deploy": "node scripts/prisma-with-db-env.mjs migrate deploy"
   },
   "dependencies": {
+    "@prisma/client": "6.19.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mysql2": "^3.12.0"
+    "mysql2": "^3.14.0",
+    "prisma": "6.19.3"
   }
 }

@@ -91,7 +91,11 @@ export function SalesDeptReport() {
               <span className="text-emerald-700">เชื่อมฐานข้อมูลแล้ว — แสดงยอดจริง</span>
             )}
             {!loading && !fromDb && (
-              <span>โหมดตัวอย่าง — ยังไม่ได้เชื่อม MySQL หรือไม่มีข้อมูล</span>
+              <span>
+                ยังไม่มีข้อมูลจากฐานข้อมูล — ตั้ง DATABASE_URL ใน server/.env แล้วนำเข้า{" "}
+                <code className="rounded bg-slate-100 px-1 text-xs">database/mns_pm_2021.sql</code> ใน MySQL
+                (ดู <code className="rounded bg-slate-100 px-1 text-xs">database/IMPORT.txt</code>)
+              </span>
             )}
           </p>
           {full && fromDb && (
@@ -159,7 +163,8 @@ export function SalesDeptReport() {
             — ถ้าไม่ระบุ ระบบใช้สูตรประมาณจากยอดใบเสนอราคา
           </p>
           <SalesDeptKpiTable
-            liveKpi={fromDb ? (salesPayload?.kpi ?? []) : undefined}
+            connectedToDb={fromDb}
+            liveKpi={salesPayload?.kpi ?? []}
           />
         </section>
       </div>

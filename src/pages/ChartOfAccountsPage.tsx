@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ChevronRight, Pencil, Plus, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { SettingsBackLink } from "../components/settings/SettingsBackLink";
 import { SettingsBluePanel } from "../components/settings/SettingsBluePanel";
 import { useOrgSettings } from "../context/OrgSettingsContext";
@@ -331,7 +332,12 @@ export function ChartOfAccountsPage() {
                 >
                   <td className="px-3 py-2.5 font-mono text-xs">{r.code}</td>
                   <td className="px-3 py-2.5 font-medium text-violet-700">
-                    {r.name}
+                    <Link
+                      to={`/settings/chart-of-accounts/${encodeURIComponent(r.code)}`}
+                      className="rounded px-1 py-0.5 text-violet-700 no-underline hover:bg-violet-50 hover:underline"
+                    >
+                      {r.name}
+                    </Link>
                   </td>
                   <td className="px-3 py-2.5 text-slate-700">{r.category}</td>
                   <td className="px-3 py-2.5 text-slate-600">{r.accountType}</td>

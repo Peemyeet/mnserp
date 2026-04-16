@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Lock, User } from "lucide-react";
 import { defaultHomePath } from "../auth/deptAccess";
@@ -37,6 +37,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const passwordInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
@@ -108,6 +109,12 @@ export function LoginPage() {
                 className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-3 pl-11 pr-4 text-slate-900 shadow-inner outline-none ring-0 transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-200"
                 placeholder="เช่น admin, sale, pm"
                 autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    passwordInputRef.current?.focus();
+                  }
+                }}
               />
             </div>
           </label>
@@ -122,6 +129,7 @@ export function LoginPage() {
                 aria-hidden
               />
               <input
+                ref={passwordInputRef}
                 type="password"
                 name="password"
                 autoComplete="current-password"

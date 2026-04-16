@@ -1,21 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, HelpCircle, Pencil, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  SALES_STOCK_SEED,
-  type StockPartRow,
-} from "../../data/warehouseInventorySeed";
+import type { StockPartRow } from "../../data/warehouseInventorySeed";
+import { useWarehouseStoreData } from "../../hooks/useWarehouseStoreData";
 import { WarehouseExportToolbar } from "./WarehouseExportToolbar";
 import { SortableTh } from "./SortableTh";
+
+const NO_ACTION =
+  "ฟังก์ชันนี้ยังไม่เชื่อมฐานข้อมูล — แก้ไขผ่านระบบเดิมหรือรอ API";
 
 const PAGE_SIZE = 10;
 
 type SortKey = keyof StockPartRow;
 
 export function SalesWarehouseView() {
-  const [rows, setRows] = useState<StockPartRow[]>(() =>
-    SALES_STOCK_SEED.map((r) => ({ ...r }))
-  );
+  const { loading: storeLoading, error: storeError, fromDb, stockRows: apiRows } =
+    useWarehouseStoreData("sales");
+  const [rows, setRows] = useState<StockPartRow[]>([]);
+
+  useEffect(() => {
+    setRows(apiRows);
+  }, [apiRows]);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("mnsPartNo");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
@@ -82,10 +87,6 @@ export function SalesWarehouseView() {
     setPage(1);
   };
 
-  const updateRow = (id: string, patch: Partial<StockPartRow>) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-  };
-
   const exportMatrix = {
     head: [
       "NO",
@@ -122,6 +123,20 @@ export function SalesWarehouseView() {
               คลังสินค้า ( สำหรับขาย )
             </h1>
             <p className="text-sm text-slate-500">Store for sale</p>
+            {storeLoading && (
+              <p className="mt-1 text-xs text-violet-600">กำลังโหลดจาก store_data (หมวดพร้อมขาย)…</p>
+            )}
+            {!storeLoading && storeError && (
+              <p className="mt-1 text-xs text-rose-600">{storeError}</p>
+            )}
+        {!storeLoading && fromDb && !storeError && (
+          <p className="mt-1 text-xs text-emerald-700">
+            แสดงข้อมูลจริงจาก MySQL ({rows.length} รายการ)
+          </p>
+        )}
+        {!storeLoading && !fromDb && !storeError && (
+              <p className="mt-1 text-xs text-slate-500">เชื่อม API + ฐานข้อมูลเพื่อโหลดรายการ</p>
+            )}
           </div>
           <div className="relative" ref={settingsRef}>
             <button
@@ -158,6 +173,14 @@ export function SalesWarehouseView() {
       </header>
 
       <div className="p-4 sm:p-6">
+        <div className="mb-4 flex justify-end print:hidden">
+          <Link
+            to="/warehouse/sales/add"
+            className="rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-violet-700"
+          >
+            เพิ่มสินค้าในคลังขาย
+          </Link>
+        </div>
         <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card">
           <WarehouseExportToolbar
             search={search}
@@ -255,37 +278,19 @@ export function SalesWarehouseView() {
                     <td className="px-3 py-2 font-semibold text-violet-600">
                       {r.qty}
                     </td>
-                    <td className="px-3 py-2">
-                      <input
-                        type="text"
-                        value={r.remark}
-                        onChange={(e) =>
-                          updateRow(r.id, { remark: e.target.value })
-                        }
-                        className="w-full min-w-[100px] rounded border border-slate-200 px-2 py-1 text-sm"
-                      />
+                    <td className="max-w-[180px] px-3 py-2 text-slate-700">
+                      {r.remark || "—"}
                     </td>
-                    <td className="px-3 py-2">
-                      <input
-                        type="number"
-                        min={0}
-                        value={r.processingQty}
-                        onChange={(e) =>
-                          updateRow(r.id, {
-                            processingQty: Math.max(
-                              0,
-                              Number(e.target.value) || 0
-                            ),
-                          })
-                        }
-                        className="w-20 rounded border border-slate-200 px-2 py-1 text-sm"
-                      />
+                    <td className="px-3 py-2 tabular-nums text-slate-700">
+                      {r.processingQty}
                     </td>
                     <td className="px-3 py-2 text-slate-600">{r.location}</td>
                     <td className="px-3 py-2">
                       <button
                         type="button"
-                        className="rounded p-1.5 text-amber-500 hover:bg-amber-50 hover:text-amber-700"
+                        disabled
+                        title={NO_ACTION}
+                        className="rounded p-1.5 text-slate-400 disabled:cursor-not-allowed"
                         aria-label="แก้ไข"
                       >
                         <Pencil className="h-4 w-4" />

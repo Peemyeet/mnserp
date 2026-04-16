@@ -1,0 +1,82 @@
+// Prisma — provider MySQL (cPanel / MariaDB)
+// สร้าง Client: npm run db:generate --prefix server
+// ฐานจริงของ ERP มาจาก database/db_mns.sql + database/database.sql
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// บันทึกชำระเงินและจัดส่ง (หลังบันทึกสามารถสร้างใบส่งของ)
+model MnsPaymentShipConfirm {
+  pscId            BigInt   @id @default(autoincrement()) @map("psc_id") @db.UnsignedBigInt
+  profileId        Int      @default(1) @map("profile_id")
+  jobId            Int      @default(0) @map("job_id")
+  boNo             String   @default("") @map("bo_no") @db.VarChar(200)
+  rfqNo            String   @default("") @map("rfq_no") @db.VarChar(50)
+  paymentConfirmed Boolean  @default(false) @map("payment_confirmed")
+  transferRef      String   @default("") @map("transfer_ref") @db.VarChar(200)
+  shipped          Boolean  @default(false)
+  trackingNo       String   @default("") @map("tracking_no") @db.VarChar(120)
+  remark           String   @default("") @map("remark") @db.Text
+  createdAt        DateTime @default(now()) @map("created_at")
+  modified         DateTime @default(now()) @updatedAt @map("modified")
+  userId           Int      @default(0) @map("user_id")
+
+  deliveryNotes MnsDeliveryNote[]
+
+  @@index([jobId], map: "idx_psc_job")
+  @@index([boNo], map: "idx_psc_bo")
+  @@index([createdAt], map: "idx_psc_created")
+  @@map("mns_payment_ship_confirm")
+}
+
+/// ใบส่งของ
+model MnsDeliveryNote {
+  dnId           Int       @id @default(autoincrement()) @map("dn_id")
+  profileId      Int       @default(1) @map("profile_id")
+  jobId          Int       @default(0) @map("job_id")
+  pscId          BigInt?   @map("psc_id") @db.UnsignedBigInt
+  dnNo           String    @unique @map("dn_no") @db.VarChar(40)
+  dnDate         DateTime  @map("dn_date") @db.Date
+  boNo           String    @default("") @map("bo_no") @db.VarChar(200)
+  cusId          Int       @default(0) @map("cus_id")
+  shipToName     String    @default("") @map("ship_to_name") @db.VarChar(300)
+  shipToAddress  String    @default("") @map("ship_to_address") @db.Text
+  trackingNo     String    @default("") @map("tracking_no") @db.VarChar(120)
+  status         Int       @default(0) @db.TinyInt
+  modified       DateTime  @default(now()) @updatedAt @map("modified")
+  userId         Int       @default(0) @map("user_id")
+
+  paymentShip MnsPaymentShipConfirm? @relation(fields: [pscId], references: [pscId], onDelete: SetNull)
+  lines       MnsDeliveryNoteLine[]
+
+  @@index([jobId], map: "idx_dn_job")
+  @@index([pscId], map: "idx_dn_psc")
+  @@index([dnDate], map: "idx_dn_date")
+  @@map("mns_delivery_note")
+}
+
+/// รายการในใบส่งของ
+model MnsDeliveryNoteLine {
+  dnlId       Int     @id @default(autoincrement()) @map("dnl_id")
+  dnId        Int     @map("dn_id")
+  lineNo      Int     @default(1) @map("line_no")
+  partId      Int     @default(0) @map("part_id")
+  description String  @default("") @map("description") @db.VarChar(500)
+  qty         Decimal @default(0) @map("qty") @db.Decimal(15, 3)
+  unit        String  @default("") @map("unit") @db.VarChar(30)
+  unitPrice   Decimal @default(0) @map("unit_price") @db.Decimal(15, 2)
+  lineTotal   Decimal @default(0) @map("line_total") @db.Decimal(15, 2)
+  remark      String  @default("") @map("remark") @db.VarChar(500)
+
+  deliveryNote MnsDeliveryNote @relation(fields: [dnId], references: [dnId], onDelete: Cascade)
+
+  @@index([dnId], map: "idx_dnl_dn")
+  @@index([partId], map: "idx_dnl_part")
+  @@map("mns_delivery_note_line")
+}

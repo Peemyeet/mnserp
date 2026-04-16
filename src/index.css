@@ -11,3 +11,37 @@
     @apply bg-surface text-slate-800 font-sans;
   }
 }
+
+/* หน้า «เอกสารขอเบิก» — พิมพ์เฉพาะการ์ดฟอร์ม (ไม่มี sidebar / แบนเนอร์ / หัวข้อหน้า) */
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  body:has(.expense-claim-print-root) * {
+    visibility: hidden;
+  }
+
+  body:has(.expense-claim-print-root) .expense-claim-print-root,
+  body:has(.expense-claim-print-root) .expense-claim-print-root * {
+    visibility: visible !important;
+  }
+
+  body:has(.expense-claim-print-root) .expense-claim-print-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.75rem;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}

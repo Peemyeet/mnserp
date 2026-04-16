@@ -3,11 +3,9 @@ import { FileText, MessageCircle } from "lucide-react";
 import { DeptPageFrame } from "../../components/dept/DeptPageFrame";
 import { DeptSubPageHeader } from "../../components/dept/DeptSubPageHeader";
 import { WarehouseExportToolbar } from "../../components/warehouse/WarehouseExportToolbar";
-import {
-  BILL_NOTE_LIST_SAMPLE,
-  BILL_NOTE_PENDING_PLACEHOLDER,
-  type BillNoteListRow,
-  type BillNotePendingInvoiceRow,
+import type {
+  BillNoteListRow,
+  BillNotePendingInvoiceRow,
 } from "../../data/accountingBillNoteSeed";
 
 const PAGE = 10;
@@ -94,8 +92,8 @@ export function AccountingBillNotePage() {
   const [tab, setTab] = useState<TabKey>("outstanding");
   const [search, setSearch] = useState("");
 
-  const pendingRows = BILL_NOTE_PENDING_PLACEHOLDER;
-  const billRows = BILL_NOTE_LIST_SAMPLE;
+  const pendingRows: BillNotePendingInvoiceRow[] = [];
+  const billRows: BillNoteListRow[] = [];
 
   const pendingPaged = usePaged(pendingRows, search, (r: BillNotePendingInvoiceRow) =>
     [

@@ -3,8 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   Car,
-  ClipboardCheck,
-  FileText,
+  ClipboardList,
   Home,
   LineChart,
   LogOut,
@@ -25,6 +24,7 @@ import { ALL_WAREHOUSE_KINDS } from "../data/warehouseNav";
 import { useItSupport } from "../context/ItSupportContext";
 import { useAuth } from "../context/AuthContext";
 import { DepartmentNavSection } from "./DepartmentNavSection";
+import { DocumentsNavSection } from "./DocumentsNavSection";
 import { WarehouseNavSection } from "./WarehouseNavSection";
 
 type NavItem = {
@@ -116,6 +116,22 @@ export function Sidebar({
             </span>
           )}
         </NavLink>
+        <NavLink
+          to="/forms/expense"
+          end
+          className="block rounded-xl no-underline"
+        >
+          {({ isActive }) => (
+            <span
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
+            >
+              <ClipboardList
+                className={`h-5 w-5 shrink-0 ${isActive ? "text-indigo-600" : "text-slate-400"}`}
+              />
+              <span className="min-w-0 flex-1 truncate">เอกสารขอเบิก</span>
+            </span>
+          )}
+        </NavLink>
         {showSalesMenu && (
           <NavLink to="/sales" className="block rounded-xl no-underline">
             {({ isActive }) => (
@@ -174,40 +190,7 @@ export function Sidebar({
           )}
         </NavLink>
 
-        {fullAccess && (
-          <NavLink to="/approve" className="block rounded-xl no-underline">
-            {({ isActive }) => (
-              <span
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
-              >
-                <ClipboardCheck
-                  className={`h-5 w-5 shrink-0 ${isActive ? "text-indigo-600" : "text-slate-400"}`}
-                />
-                <span className="min-w-0 flex-1 truncate">อนุมัติ</span>
-              </span>
-            )}
-          </NavLink>
-        )}
-
-        {fullAccess && (
-          <NavLink to="/documents" className="block rounded-xl no-underline">
-            {({ isActive }) => (
-              <span
-                className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${sidebarLinkContent(isActive)}`}
-              >
-                <span className="flex min-w-0 flex-1 items-center gap-3">
-                  <FileText
-                    className={`h-5 w-5 shrink-0 ${isActive ? "text-indigo-600" : "text-slate-400"}`}
-                  />
-                  <span className="truncate">เอกสาร</span>
-                </span>
-                <span className="flex h-6 min-w-[1.5rem] shrink-0 items-center justify-center rounded-full bg-rose-500 px-1.5 text-xs font-semibold text-white">
-                  220
-                </span>
-              </span>
-            )}
-          </NavLink>
-        )}
+        {fullAccess && <DocumentsNavSection />}
 
         {otherNav.map(({ icon: Icon, label, badge }) => (
           <button

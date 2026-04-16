@@ -7,17 +7,16 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { createSeedCustomers } from "../data/customersSeed";
 import { mapDbCustomerRow, type DbCustomerRow } from "../lib/mapMnsDb";
 import { useMnsConnection } from "./MnsConnectionContext";
 import { mnsFetch } from "../services/mnsApi";
 import type { Customer, CustomerInput } from "../types/customer";
 
-type DataSource = "seed" | "mysql";
+type DataSource = "live";
 
 type CustomersContextValue = {
   customers: Customer[];
-  /** โหลดจาก seed หรือ MySQL */
+  /** บันทึกผ่าน API/ฐานข้อมูลเท่านั้น */
   dataSource: DataSource;
   /** โหลดครั้งแรกเสร็จแล้ว */
   hydrated: boolean;
@@ -30,23 +29,10 @@ type CustomersContextValue = {
 
 const CustomersContext = createContext<CustomersContextValue | null>(null);
 
-function nextCustomerCode(existing: Customer[]) {
-  const nums = existing
-    .map((c) => {
-      const m = c.customerCode.match(/C(\d+)/);
-      return m ? parseInt(m[1], 10) : 0;
-    })
-    .filter((n) => n > 0);
-  const next = (nums.length ? Math.max(...nums) : 12019) + 1;
-  return `C${String(next).padStart(7, "0")}`;
-}
-
 export function CustomersProvider({ children }: { children: ReactNode }) {
   const conn = useMnsConnection();
-  const [customers, setCustomers] = useState<Customer[]>(() =>
-    createSeedCustomers()
-  );
-  const [dataSource, setDataSource] = useState<DataSource>("seed");
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [dataSource] = useState<DataSource>("live");
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -55,6 +41,7 @@ export function CustomersProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         if (!conn.apiOk || !conn.db) {
+          setCustomers([]);
           setHydrated(true);
           return;
         }
@@ -63,13 +50,13 @@ export function CustomersProvider({ children }: { children: ReactNode }) {
         );
         if (cancelled) return;
         if (!res.ok || !Array.isArray(res.rows)) {
+          setCustomers([]);
           setHydrated(true);
           return;
         }
         setCustomers(res.rows.map(mapDbCustomerRow));
-        setDataSource("mysql");
       } catch {
-        /* ใช้ seed */
+        setCustomers([]);
       } finally {
         if (!cancelled) setHydrated(true);
       }
@@ -81,38 +68,18 @@ export function CustomersProvider({ children }: { children: ReactNode }) {
 
   const addCustomer = useCallback(
     async (input: CustomerInput) => {
-      if (dataSource === "mysql") {
-        const res = await mnsFetch<{ row: DbCustomerRow }>("/customers", {
-          method: "POST",
-          body: JSON.stringify({
-            companyName: input.companyName.trim(),
-            contactName: input.contactName.trim(),
-            phone: input.phone.trim(),
-            detailNote: input.detailNote?.trim(),
-          }),
-        });
-        setCustomers((prev) => [mapDbCustomerRow(res.row), ...prev]);
-        return;
-      }
-
-      setCustomers((prev) => {
-        const row: Customer = {
-          id: `cust-${Date.now()}`,
-          customerCode: nextCustomerCode(prev),
+      const res = await mnsFetch<{ row: DbCustomerRow }>("/customers", {
+        method: "POST",
+        body: JSON.stringify({
           companyName: input.companyName.trim(),
           contactName: input.contactName.trim(),
           phone: input.phone.trim(),
-          salesPersonName: input.salesPersonName.trim(),
-          customerType: input.customerType.trim(),
-          region: input.region.trim(),
-          frequency: input.frequency ?? 0,
-          grade: (input.grade ?? "B").trim() || "B",
-          detailNote: input.detailNote?.trim() || undefined,
-        };
-        return [row, ...prev];
+          detailNote: input.detailNote?.trim(),
+        }),
       });
+      setCustomers((prev) => [mapDbCustomerRow(res.row), ...prev]);
     },
-    [dataSource]
+    []
   );
 
   const updateCustomer = useCallback(

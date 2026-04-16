@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
 import { RequireAuth } from "./components/RequireAuth";
 import { ChartOfAccountsPage } from "./pages/ChartOfAccountsPage";
+import { ChartOfAccountDetailPage } from "./pages/ChartOfAccountDetailPage";
 import { CompanyNameSettingsPage } from "./pages/CompanyNameSettingsPage";
 import { CustomerSettingsPage } from "./pages/CustomerSettingsPage";
 import { HomePage } from "./pages/HomePage";
@@ -13,7 +14,14 @@ import { DocumentsPage } from "./pages/DocumentsPage";
 import { DepartmentUnitSettingsPage } from "./pages/DepartmentUnitSettingsPage";
 import { DivisionSettingsPage } from "./pages/DivisionSettingsPage";
 import { AccountingAccountReportPage } from "./pages/dept/AccountingAccountReportPage";
+import { AccountingAddCreditorPage } from "./pages/dept/AccountingAddCreditorPage";
+import { AccountingExpenseVerifyFormPage } from "./pages/dept/AccountingExpenseVerifyFormPage";
+import { AccountingExpenseClaimSummaryPage } from "./pages/dept/AccountingExpenseClaimSummaryPage";
 import { AccountingBillNotePage } from "./pages/dept/AccountingBillNotePage";
+import { AccountingAuditPendingPage } from "./pages/dept/AccountingAuditPendingPage";
+import { AccountingApproveExpensePage } from "./pages/dept/AccountingApproveExpensePage";
+import { AccountingPayinPage } from "./pages/dept/AccountingPayinPage";
+import { AccountingPurchaseDocsPage } from "./pages/dept/AccountingPurchaseDocsPage";
 import { AccountingReceiptPage } from "./pages/dept/AccountingReceiptPage";
 import { AccountingTaxInvoicePage } from "./pages/dept/AccountingTaxInvoicePage";
 import { DepartmentReportPage } from "./pages/dept/DepartmentReportPage";
@@ -34,10 +42,15 @@ import { SalesWaitPoListPage } from "./pages/dept/SalesWaitPoListPage";
 import { SalesSaleJobSheetPage } from "./pages/dept/SalesSaleJobSheetPage";
 import { SalesInputPage } from "./pages/SalesInputPage";
 import { StageJobsPage } from "./pages/StageJobsPage";
+import { WarehouseAddItemPage } from "./pages/WarehouseAddItemPage";
 import { WarehousePage } from "./pages/WarehousePage";
 import { WarehouseSettingsPage } from "./pages/WarehouseSettingsPage";
 import { UserSettingsPage } from "./pages/UserSettingsPage";
 import { LoginPage } from "./pages/LoginPage";
+import { ExpenseClaimFormPage } from "./pages/ExpenseClaimFormPage";
+import { ExpenseClaimSubmissionsPage } from "./pages/ExpenseClaimSubmissionsPage";
+import { ExpenseClaimSubmissionDetailPage } from "./pages/ExpenseClaimSubmissionDetailPage";
+import { AccountingExpenseClaimLinesPage } from "./pages/dept/AccountingExpenseClaimLinesPage";
 
 export default function App() {
   return (
@@ -46,6 +59,15 @@ export default function App() {
       <Route element={<RequireAuth />}>
         <Route element={<AppShell />}>
           <Route index element={<HomePage />} />
+          <Route path="forms/expense" element={<ExpenseClaimFormPage />} />
+          <Route
+            path="forms/expense/submissions"
+            element={<ExpenseClaimSubmissionsPage />}
+          />
+          <Route
+            path="forms/expense/submissions/:claimId"
+            element={<ExpenseClaimSubmissionDetailPage />}
+          />
           <Route path="it" element={<ItDashboardPage />} />
           <Route path="it/report" element={<ItReportPage />} />
           <Route path="approve" element={<ApprovePage />} />
@@ -54,8 +76,34 @@ export default function App() {
           <Route path="sales" element={<SalesInputPage />} />
           <Route path="stage/:stageCode" element={<StageJobsPage />} />
           <Route path="dept/accounting/invoice" element={<AccountingTaxInvoicePage />} />
+          <Route
+            path="dept/accounting/add-creditor"
+            element={<AccountingAddCreditorPage />}
+          />
+          <Route
+            path="dept/accounting/expense-claim-summary"
+            element={<AccountingExpenseClaimSummaryPage />}
+          />
+          <Route
+            path="dept/accounting/expense-verify"
+            element={<AccountingExpenseVerifyFormPage />}
+          />
           <Route path="dept/accounting/bill-note" element={<AccountingBillNotePage />} />
           <Route path="dept/accounting/receipt" element={<AccountingReceiptPage />} />
+          <Route path="dept/accounting/payin" element={<AccountingPayinPage />} />
+          <Route path="dept/accounting/purchase-docs" element={<AccountingPurchaseDocsPage />} />
+          <Route
+            path="dept/accounting/approve-expense"
+            element={<AccountingApproveExpensePage />}
+          />
+          <Route
+            path="dept/accounting/expense-claim-lines"
+            element={<AccountingExpenseClaimLinesPage />}
+          />
+          <Route
+            path="dept/accounting/audit-pending"
+            element={<AccountingAuditPendingPage />}
+          />
           <Route
             path="dept/accounting/account-report"
             element={<AccountingAccountReportPage />}
@@ -107,6 +155,7 @@ export default function App() {
           />
           <Route path="dept/:deptId/report" element={<DepartmentReportPage />} />
           <Route path="dept/:deptId" element={<DepartmentWorkPage />} />
+          <Route path="warehouse/:warehouseKind/add" element={<WarehouseAddItemPage />} />
           <Route path="warehouse/:warehouseKind" element={<WarehousePage />} />
           <Route path="settings/customers" element={<CustomerSettingsPage />} />
           <Route path="settings/users" element={<UserSettingsPage />} />
@@ -122,6 +171,10 @@ export default function App() {
           <Route
             path="settings/chart-of-accounts"
             element={<ChartOfAccountsPage />}
+          />
+          <Route
+            path="settings/chart-of-accounts/:accountCode"
+            element={<ChartOfAccountDetailPage />}
           />
           <Route path="settings/warehouses" element={<WarehouseSettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
