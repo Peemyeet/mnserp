@@ -3,7 +3,7 @@ import { defineConfig, loadEnv } from "vite";
 
 /**
  * - dev (`vite`): base `/`
- * - build: ค่าเริ่มต้น `/` (Railway, โดเมนหลัก) — ถ้า deploy GitHub Pages ให้ตั้ง GITHUB_REPOSITORY หรือ VITE_BASE
+ * - build: ค่าเริ่มต้น `/pm2026/` — override ด้วย `VITE_BASE` หรือ (ใน CI) `GITHUB_REPOSITORY`
  */
 function viteBase(command: string, envBase: string | undefined, repo: string): string {
   if (command === "serve") return "/";
@@ -14,7 +14,7 @@ function viteBase(command: string, envBase: string | undefined, repo: string): s
     return b;
   }
   if (process.env.GITHUB_REPOSITORY) return `/${repo}/`;
-  return "/";
+  return "/pm2026/";
 }
 
 export default defineConfig(({ command, mode }) => {

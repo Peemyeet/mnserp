@@ -51,6 +51,8 @@ import { ExpenseClaimFormPage } from "./pages/ExpenseClaimFormPage";
 import { ExpenseClaimSubmissionsPage } from "./pages/ExpenseClaimSubmissionsPage";
 import { ExpenseClaimSubmissionDetailPage } from "./pages/ExpenseClaimSubmissionDetailPage";
 import { AccountingExpenseClaimLinesPage } from "./pages/dept/AccountingExpenseClaimLinesPage";
+import { AccountingPayablesSettingsPage } from "./pages/AccountingPayablesSettingsPage";
+import { PmApiUsersTestPage } from "./pages/PmApiUsersTestPage";
 
 export default function App() {
   return (
@@ -70,6 +72,7 @@ export default function App() {
           />
           <Route path="it" element={<ItDashboardPage />} />
           <Route path="it/report" element={<ItReportPage />} />
+          <Route path="test/pm-api-users" element={<PmApiUsersTestPage />} />
           <Route path="approve" element={<ApprovePage />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="documents/create/:kind" element={<CreateDocumentPage />} />
@@ -158,6 +161,10 @@ export default function App() {
           <Route path="warehouse/:warehouseKind/add" element={<WarehouseAddItemPage />} />
           <Route path="warehouse/:warehouseKind" element={<WarehousePage />} />
           <Route path="settings/customers" element={<CustomerSettingsPage />} />
+          <Route
+            path="settings/accounting-payables"
+            element={<AccountingPayablesSettingsPage />}
+          />
           <Route path="settings/users" element={<UserSettingsPage />} />
           <Route
             path="settings/company-names"

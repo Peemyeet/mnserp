@@ -105,8 +105,28 @@ function SubStatButton({
   );
 }
 
-function CornerTotal({ n, className }: { n: number; className: string }) {
+function CornerTotal({
+  n,
+  className,
+  to,
+}: {
+  n: number;
+  className: string;
+  to?: string;
+}) {
+  const navigate = useNavigate();
   if (n <= 0) return null;
+  if (to) {
+    return (
+      <button
+        type="button"
+        onClick={() => navigate(to)}
+        className={`absolute right-3 top-3 z-10 flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-sm font-bold text-white shadow transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 ${className}`}
+      >
+        {n}
+      </button>
+    );
+  }
   return (
     <span
       className={`absolute right-3 top-3 flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-sm font-bold text-white shadow ${className}`}
@@ -122,6 +142,7 @@ function SalesStageCard({
   total,
   icon: Icon,
   theme,
+  totalTo,
   children,
 }: {
   titleTh: string;
@@ -129,6 +150,7 @@ function SalesStageCard({
   total: number;
   icon: LucideIcon;
   theme: CardTheme;
+  totalTo?: string;
   children?: ReactNode;
 }) {
   const t = CARD_THEME[theme];
@@ -140,7 +162,7 @@ function SalesStageCard({
         className={`pointer-events-none absolute rounded-full blur-2xl ${t.blur}`}
         aria-hidden
       />
-      <CornerTotal n={total} className={t.total} />
+      <CornerTotal n={total} className={t.total} to={totalTo} />
       <div className="mb-4 flex items-start gap-3 pr-14">
         <span
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-md ${t.iconBg}`}
@@ -163,42 +185,35 @@ function SalesStageCard({
 
 export function SalesDeptDashboard() {
   const conn = useMnsConnection();
-  const [qCounts, setQCounts] = useState({
-    receive: 0,
-    check: 0,
-    salesInfo: 0,
-    spare: 0,
-    priceDone: 0,
-  });
+  const [stageCounts, setStageCounts] = useState<Record<number, number>>(() =>
+    Object.fromEntries(Array.from({ length: 20 }, (_, i) => [i + 1, 0]))
+  );
 
   useEffect(() => {
     if (!conn.ready || !conn.apiOk || !conn.db) return;
     let cancelled = false;
     (async () => {
       try {
-        const [r1, r2, r3, r4, r5] = await Promise.all(
-          [1, 2, 3, 4, 5].map((ws) =>
-            mnsFetch<{ rows?: unknown[] }>(`/jobs?job_status=${ws}&limit=1000`)
-          )
-        );
+        const res = await mnsFetch<{
+          ok?: boolean;
+          byStatus?: Record<string, number>;
+        }>("/sales/stage-counts");
         if (cancelled) return;
-        setQCounts({
-          receive: r1.rows?.length ?? 0,
-          check: r2.rows?.length ?? 0,
-          salesInfo: r3.rows?.length ?? 0,
-          spare: r4.rows?.length ?? 0,
-          priceDone: r5.rows?.length ?? 0,
-        });
-      } catch {
-        if (!cancelled) {
-          setQCounts({
-            receive: 0,
-            check: 0,
-            salesInfo: 0,
-            spare: 0,
-            priceDone: 0,
-          });
+        const next = Object.fromEntries(
+          Array.from({ length: 20 }, (_, i) => [i + 1, 0])
+        ) as Record<number, number>;
+        for (const [k, v] of Object.entries(res.byStatus ?? {})) {
+          const ws = Number(k);
+          if (Number.isInteger(ws) && ws >= 1 && ws <= 20) {
+            next[ws] = Number(v) || 0;
+          }
         }
+        setStageCounts(next);
+      } catch {
+        if (!cancelled)
+          setStageCounts(
+            Object.fromEntries(Array.from({ length: 20 }, (_, i) => [i + 1, 0]))
+          );
       }
     })();
     return () => {
@@ -238,12 +253,33 @@ export function SalesDeptDashboard() {
     };
   }, [conn.ready, conn.apiOk, conn.db]);
 
-  const quotationTotal =
-    qCounts.receive +
-    qCounts.check +
-    qCounts.salesInfo +
-    qCounts.spare +
-    qCounts.priceDone;
+  const countWs = (ws: number) => stageCounts[ws] ?? 0;
+  const qCounts = {
+    receive: countWs(1),
+    check: countWs(2),
+    salesInfo: countWs(3),
+    spare: countWs(4),
+    priceDone: countWs(5),
+  };
+  const poArrivedCount = countWs(8);
+  const purchaseSystemCount = countWs(9);
+  const goodsArrivedCount = countWs(10);
+  const inProductionCount = countWs(11);
+  const repairCompletedCount = countWs(12);
+  const deliverySendTestCount = countWs(13);
+  const deliveryFailCount = countWs(14);
+  const deliveryPassCount = countWs(15);
+  const waitMoneyCount = countWs(17);
+  const claimCount = countWs(20);
+  const quotationTotal = qCounts.receive + qCounts.check + qCounts.salesInfo + qCounts.spare + qCounts.priceDone;
+  const receivedPoTotal =
+    poArrivedCount +
+    purchaseSystemCount +
+    goodsArrivedCount +
+    inProductionCount +
+    repairCompletedCount;
+  const deliveryTotal =
+    deliverySendTestCount + deliveryFailCount + deliveryPassCount;
 
   return (
     <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
@@ -253,6 +289,7 @@ export function SalesDeptDashboard() {
         total={quotationTotal}
         icon={Settings}
         theme="violet"
+        totalTo="/dept/sales/quotation/receive"
       >
         <SubStatButton
           label="รับงาน"
@@ -292,6 +329,7 @@ export function SalesDeptDashboard() {
         total={waitPoCounts.within60 + waitPoCounts.over60}
         icon={Wrench}
         theme="teal"
+        totalTo="/dept/sales/wait-po/within60"
       >
         <SubStatButton
           label="1-60 วัน"
@@ -310,27 +348,28 @@ export function SalesDeptDashboard() {
       <SalesStageCard
         titleTh="ได้ PO"
         titleEn="Received PO"
-        total={7}
+        total={receivedPoTotal}
         icon={LayoutGrid}
         theme="amber"
+        totalTo="/dept/sales/po-arrived"
       >
         <SubStatButton
           label="PO มาแล้ว"
-          count={2}
+          count={poArrivedCount}
           tone="red"
           to="/dept/sales/po-arrived"
         />
         <SubStatButton
           label="ระบบสั่งซื้อ"
-          count={3}
+          count={purchaseSystemCount}
           tone="orange"
           to="/dept/sales/purchase-system"
         />
-        <SubStatButton label="ของมาแล้ว" count={0} tone="purple" />
-        <SubStatButton label="ดำเนินการผลิต" count={1} tone="teal" />
+        <SubStatButton label="ของมาแล้ว" count={goodsArrivedCount} tone="purple" />
+        <SubStatButton label="ดำเนินการผลิต" count={inProductionCount} tone="teal" />
         <SubStatButton
           label="ซ่อมเสร็จแล้ว"
-          count={1}
+          count={repairCompletedCount}
           tone="teal"
           wide
           to="/dept/sales/repair-completed"
@@ -340,29 +379,32 @@ export function SalesDeptDashboard() {
       <SalesStageCard
         titleTh="ระบบทดสอบ"
         titleEn="Delivery"
-        total={2}
+        total={deliveryTotal}
         icon={Settings}
         theme="sky"
+        totalTo="/dept/sales/po-arrived"
       >
-        <SubStatButton label="ส่งของเทส" count={0} tone="purple" wide />
-        <SubStatButton label="เทสไม่ผ่าน" count={0} tone="red" />
-        <SubStatButton label="เทสผ่าน" count={2} tone="orange" />
+        <SubStatButton label="ส่งของเทส" count={deliverySendTestCount} tone="purple" wide />
+        <SubStatButton label="เทสไม่ผ่าน" count={deliveryFailCount} tone="red" />
+        <SubStatButton label="เทสผ่าน" count={deliveryPassCount} tone="orange" />
       </SalesStageCard>
 
       <SalesStageCard
         titleTh="รอเก็บเงิน"
         titleEn="Wait Money"
-        total={7}
+        total={waitMoneyCount}
         icon={Settings}
         theme="emerald"
+        totalTo="/dept/sales/report"
       />
 
       <SalesStageCard
         titleTh="เคลม"
         titleEn="Claim"
-        total={0}
+        total={claimCount}
         icon={Settings}
         theme="rose"
+        totalTo="/dept/sales/report"
       />
     </div>
   );

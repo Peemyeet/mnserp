@@ -14,6 +14,7 @@ Deploy บน Railway (แนะนำสำหรับโปรเจกต์
 ================================================================================
 ขั้นตอนแบบสั้นมาก: database/CPANEL-COPY-PASTE.txt
 
+รายละเอียด Deploy รวมทุกแพลตฟอร์ม (Railway / cPanel / GitHub Pages): DEPLOY.md
 รายละเอียด: database/CPANEL-MYSQL.txt
 
 ลำดับ Import ใน phpMyAdmin (เลือกอย่างใดอย่างหนึ่ง):

@@ -1,5 +1,5 @@
 # ต้องตั้งค่า Repo → Settings → Pages → Build: GitHub Actions
-# ใช้ actions เวอร์ชันที่รันบน Node 24 — ลดคำเตือน deprecation ของ Node 20
+# Node 22 — สอดคล้องกับ engines / .nvmrc (cPanel รองรับสูงสุดที่สาย 22 ณ การตั้งค่าปัจจุบัน)
 name: Deploy to GitHub Pages
 
 on:
@@ -18,13 +18,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: "24"
+          node-version-file: ".nvmrc"
           cache: npm
       - run: npm ci
       - run: npm run build

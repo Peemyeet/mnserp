@@ -139,13 +139,21 @@ export function requiredDepartmentForPath(pathname: string): DepartmentId | null
 
 export function canAccessPath(user: PmUser, pathname: string): boolean {
   if (!hasFullDepartmentAccess(user)) {
+    const allowSettingsForDeptUser = new Set([
+      "/settings/accounting-payables",
+      "/settings/customers",
+      "/settings/chart-of-accounts",
+    ]);
+    if (
+      pathname.startsWith("/settings/") &&
+      !allowSettingsForDeptUser.has(pathname)
+    ) {
+      return false;
+    }
     if (pathname.startsWith("/approve")) {
       return false;
     }
     if (pathname.startsWith("/documents")) {
-      return false;
-    }
-    if (pathname.startsWith("/settings/")) {
       return false;
     }
   }

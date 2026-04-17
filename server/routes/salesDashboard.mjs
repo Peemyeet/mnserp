@@ -4,6 +4,35 @@ import { getPool, isMissingColumnError } from "../db.mjs";
 const r = Router();
 
 /**
+ * GET /api/sales/stage-counts
+ * รวมจำนวนงานตาม job_status (N01..N20) จาก job_data
+ */
+r.get("/stage-counts", async (_req, res) => {
+  try {
+    const p = getPool();
+    const [rows] = await p.query(
+      `SELECT job_status, COUNT(*) AS c
+       FROM job_data
+       WHERE job_status BETWEEN 1 AND 20
+       GROUP BY job_status`
+    );
+    const byStatus = Object.fromEntries(
+      Array.from({ length: 20 }, (_, i) => [i + 1, 0])
+    );
+    for (const row of rows ?? []) {
+      const ws = Number(row.job_status);
+      if (Number.isInteger(ws) && ws >= 1 && ws <= 20) {
+        byStatus[ws] = Number(row.c) || 0;
+      }
+    }
+    res.json({ ok: true, byStatus });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: String(e.message) });
+  }
+});
+
+/**
  * GET /api/sales/dashboard?username=
  * แดชบอร์ดรายผู้ใช้ฝ่ายขาย: งานที่ต้องทำ (สเตจเสนอราคา 1–6) กับ งานค้าง (7–17, 20 ที่ยังไม่ปิด)
  * + KPI เป้า/ยอดจริงจาก bill_quota / user_data
