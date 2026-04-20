@@ -18,7 +18,7 @@
    database/migrations/mysql/003_payment_shipping_delivery_note.sql
 
 5) ใส่ connection ใน server/.env บนเซิร์ฟเวอร์ที่รัน Node API:
-   DATABASE_URL=mysql://CPANEL_USER:CPANEL_PASS@localhost:3306/ชื่อฐาน
-   (บางโฮสต์ใช้ 127.0.0.1 หรือโฮสต์ระยะไกลที่ cPanel แจ้ง — ตามเอกสารโฮสต์)
+   DATABASE_URL=mysql://CPANEL_USER:CPANEL_PASS@27.254.151.80:3306/ชื่อฐาน
+   (หรือ hostname ที่โฮสต์แจ้ง — แก้ host ให้ตรงกับ MySQL จริง)
 
 6) รัน API: npm run api แล้วทดสอบ GET /api/health (ต้องได้ db: true)

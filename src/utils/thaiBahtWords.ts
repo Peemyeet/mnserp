@@ -57,13 +57,48 @@ export function integerBahtToThaiWords(amount: number): string {
   }
 
   const millions = Math.floor(n / 1_000_000);
-  const thousands = Math.floor((n % 1_000_000) / 1000);
-  const rest = n % 1000;
+  let rem = n % 1_000_000;
+  const saen = Math.floor(rem / 100_000);
+  rem %= 100_000;
+  const wan = Math.floor(rem / 10_000);
+  rem %= 10_000;
+  const thousand = Math.floor(rem / 1000);
+  const rest = rem % 1000;
 
   let out = "";
   if (millions > 0) out += `${threeDigits(millions)}ล้าน`;
-  if (thousands > 0) out += `${threeDigits(thousands)}พัน`;
-  out += threeDigits(rest);
+
+  if (saen > 0) {
+    const lowerAfterSaen = wan > 0 || thousand > 0 || rest > 0;
+    if (saen === 1 && !lowerAfterSaen && millions === 0) {
+      out += "แสน";
+    } else if (saen === 1) {
+      out += "หนึ่งแสน";
+    } else if (saen === 2) {
+      out += "สองแสน";
+    } else {
+      out += `${ones[saen]}แสน`;
+    }
+  }
+
+  if (wan > 0) {
+    if (wan === 1) out += "หมื่น";
+    else if (wan === 2) out += "สองหมื่น";
+    else out += `${ones[wan]}หมื่น`;
+  }
+
+  if (thousand > 0) {
+    if (thousand === 1) out += "หนึ่งพัน";
+    else if (thousand === 2) out += "สองพัน";
+    else out += `${ones[thousand]}พัน`;
+  }
+
+  const hasScaleBeforeRest =
+    millions > 0 || saen > 0 || wan > 0 || thousand > 0;
+  if (rest > 0) {
+    if (hasScaleBeforeRest && rest === 1) out += "เอ็ด";
+    else out += threeDigits(rest);
+  }
 
   return `${out}บาทถ้วน`;
 }

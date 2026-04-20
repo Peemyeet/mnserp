@@ -38,6 +38,12 @@ export function MnsDbBanner() {
       {conn.message && !conn.message.includes("ยังไม่ได้ตั้ง MySQL") ? (
         <p className="mt-1 font-mono text-[11px] text-rose-800">{conn.message}</p>
       ) : null}
+      {conn.message?.includes("127.0.0.1") ? (
+        <p className="mt-1 text-[11px] text-rose-800">
+          ค่านี้มาจาก API บนโฮสต์ — แก้ <span className="font-mono">server/.env</span> ที่เซิร์ฟเวอร์แล้วรีสตาร์ท Node
+          (ไฟล์ <span className="font-mono">.env</span> มักไม่ถูก push ต้องอัปโหลดแยก)
+        </p>
+      ) : null}
     </div>
   );
 }

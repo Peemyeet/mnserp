@@ -32,7 +32,8 @@ export function buildMysqlDatabaseUrl() {
   })();
 
   const host = process.env.DB_HOST?.trim();
-  const database = process.env.DB_DATABASE?.trim();
+  const database =
+    process.env.DB_DATABASE?.trim() || process.env.DB_NAME?.trim();
   const user = process.env.DB_USERNAME ?? process.env.DB_USER;
   const password = process.env.DB_PASSWORD ?? "";
   const port = process.env.DB_PORT?.trim() || "3306";

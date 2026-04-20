@@ -3,7 +3,7 @@
  * ทดสอบว่า API รันอยู่และเชื่อม MySQL ได้ — เทียบเท่า GET /api/health
  * ใช้: รัน API อีกเทอร์มินัล (npm run api) แล้วรัน  npm run api:health
  */
-const port = Number(process.env.PORT || process.env.MNS_API_PORT) || 8787;
+const port = Number(process.env.PORT || process.env.MNS_API_PORT) || 3000;
 const base =
   process.env.API_HEALTH_URL || `http://127.0.0.1:${port}/api/health`;
 

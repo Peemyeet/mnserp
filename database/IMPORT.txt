@@ -52,7 +52,7 @@ migration เสริม (MySQL) — แทนที่ชื่อฐานใ
 สคริปต์เสริมสำหรับตารางบางชุดบน MySQL (ทางเลือก — อ่านหัวข้อในไฟล์ก่อนรัน):
   database/migrations/mysql/from_legacy_prisma_mysql.sql
 
-รัน API (พอร์ต 8787):
+รัน API (พอร์ต 3000):
   cd server && npm install && npm start
 
 รันเว็บ + API:

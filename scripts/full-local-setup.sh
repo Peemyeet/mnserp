@@ -24,14 +24,14 @@ if [[ ! -f server/.env ]]; then
 fi
 
 # ให้ตรงกับ docker-compose.yml
-grep -q '^DATABASE_URL=' server/.env || echo 'DATABASE_URL=mysql://root:mns_dev_root@127.0.0.1:3306/mns_pm_2021' >> server/.env
+grep -q '^DATABASE_URL=' server/.env || echo 'DATABASE_URL=mysql://root:mns_dev_root@27.254.151.80:3306/mns_pm_2021' >> server/.env
 if ! grep -q '^DATABASE_URL=mysql://' server/.env; then
   echo "❌ server/.env ต้องมี DATABASE_URL=mysql://..."
   exit 1
 fi
 
 if [[ ! -f .env ]]; then
-  echo "VITE_API_PROXY_TARGET=http://127.0.0.1:8787" > .env
+  echo "VITE_API_PROXY_TARGET=http://127.0.0.1:3000" > .env
 fi
 
 echo "→ docker compose up -d (ครั้งแรกอาจใช้เวลาโหลด dump หลายนาที)"

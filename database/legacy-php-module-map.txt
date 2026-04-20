@@ -79,7 +79,7 @@ action=del / cancel_rec_id / note_receive / addpicture:
   SHOW TABLES LIKE 'store%';
 
 ผ่าน API โปรเจกต์นี้ (หลังรัน server):
-  GET http://127.0.0.1:8787/api/legacy-tables
+  GET http://127.0.0.1:3000/api/legacy-tables
   → JSON บอกว่าแต่ละตารางที่รู้จักมีหรือไม่ (อ่านอย่างเดียว)
 
 --------------------------------------------------------------------------------

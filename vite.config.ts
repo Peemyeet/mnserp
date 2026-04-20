@@ -22,7 +22,7 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const base = viteBase(command, env.VITE_BASE, repo);
   const apiProxyTarget =
-    env.VITE_API_PROXY_TARGET ?? "http://127.0.0.1:8787";
+    env.VITE_API_PROXY_TARGET ?? "http://127.0.0.1:3000";
 
   /** ใช้ทั้ง dev และ preview — ไม่มี proxy ตอน preview จะทำให้ fetch `/api/*` ได้หน้า index.html (HTML แทน JSON) */
   const apiProxy: Record<string, import("vite").ProxyOptions> = {

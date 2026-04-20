@@ -20,7 +20,7 @@ const distPath = path.join(__dirname, "..", "dist");
 const serveWeb = fs.existsSync(path.join(distPath, "index.html"));
 
 const app = express();
-const PORT = Number(process.env.PORT || process.env.MNS_API_PORT) || 8787;
+const PORT = Number(process.env.PORT || process.env.MNS_API_PORT) || 3000;
 
 const apiIndex = {
   name: "ERP MNS API (MySQL)",
@@ -123,7 +123,7 @@ server.on("error", (err) => {
     console.error(
       `\nพอร์ต ${PORT} ถูกใช้งานอยู่แล้ว (มักเป็น API เก่าที่ยังรัน)\n` +
         `  แก้: ปิดเทอร์มินัลที่รัน node อยู่ หรือรัน  lsof -i :${PORT}  แล้ว  kill <PID>\n` +
-        `  หรือตั้ง PORT / MNS_API_PORT=8788 ใน server/.env และ VITE_API_PROXY_TARGET=http://127.0.0.1:8788 ใน .env ที่รากโปรเจกต์\n`
+        `  หรือตั้ง PORT / MNS_API_PORT=3001 ใน server/.env และ VITE_API_PROXY_TARGET=http://127.0.0.1:3001 ใน .env ที่รากโปรเจกต์\n`
     );
   } else {
     console.error(err);
