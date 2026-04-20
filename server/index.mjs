@@ -13,6 +13,7 @@ import accounting from "./routes/accounting.mjs";
 import store from "./routes/store.mjs";
 import deptWork from "./routes/deptWork.mjs";
 import approve from "./routes/approve.mjs";
+import auth from "./routes/auth.mjs";
 import { closePool } from "./db.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,6 +28,7 @@ const apiIndex = {
   docs: [
     "GET  /api/health",
     "GET  /api/server-info",
+    "POST /api/auth/login",
     "GET  /api/legacy-tables",
     "GET  /api/stats",
     "GET  /api/customers",
@@ -70,6 +72,7 @@ if (!serveWeb) {
 app.use("/api/customers", customers);
 app.use("/api/jobs", jobs);
 app.use("/api/users", users);
+app.use("/api/auth", auth);
 app.use("/api/sales", salesDashboard);
 app.use("/api/reports", reports);
 app.use("/api/accounting", accounting);
