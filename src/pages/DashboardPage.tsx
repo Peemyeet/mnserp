@@ -20,7 +20,7 @@ function todayThai() {
 }
 
 export function DashboardPage() {
-  const { jobs } = useJobs();
+  const { jobs, jobsLoadError, hydrated } = useJobs();
   const { user } = useAuth();
   const { unreadSubmissionCount, unreadRows } = useItSupport();
   const location = useLocation();
@@ -154,6 +154,22 @@ export function DashboardPage() {
             role="status"
           >
             คุณไม่มีสิทธิ์เข้าหน้านั้น — แสดงเฉพาะเมนูและข้อมูลตามแผนกของคุณ
+          </div>
+        )}
+        {hydrated && jobsLoadError && (
+          <div
+            className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900"
+            role="alert"
+          >
+            <p className="font-semibold">โหลดรายการงานไม่สำเร็จ</p>
+            <p className="mt-1 font-mono text-xs text-rose-800/90">
+              {jobsLoadError}
+            </p>
+            <p className="mt-2 text-xs text-rose-800/80">
+              สถานะ DB ใน /api/health แค่ตรวจว่าเชื่อม MySQL ได้ — ถ้าตารางที่ API
+              ใช้ (เช่น <code className="rounded bg-rose-100/80 px-1">workstatus</code>)
+              ไม่มีใน schema ตัวเลขบนแดชบอร์ดจะเป็น 0 ให้ตรวจฐานข้อมูลหรือ log ฝั่งเซิร์ฟเวอร์
+            </p>
           </div>
         )}
         <section aria-labelledby="summary-heading">

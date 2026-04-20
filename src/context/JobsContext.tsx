@@ -22,6 +22,8 @@ type JobsContextValue = {
   jobs: Job[];
   dataSource: DataSource;
   hydrated: boolean;
+  /** ข้อความเมื่อโหลด /jobs ล้มเหลว (เช่น ตารางใน DB ไม่ครบ) — ไม่ใช่แค่ “ไม่มีงาน” */
+  jobsLoadError: string | null;
   addJob: (input: JobInput) => Promise<void>;
   moveJobToStage: (jobId: string, stageCode: string) => Promise<void>;
 };
@@ -33,6 +35,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [dataSource] = useState<DataSource>("live");
   const [hydrated, setHydrated] = useState(false);
+  const [jobsLoadError, setJobsLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!conn.ready) return;
@@ -41,6 +44,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
       try {
         if (!conn.apiOk || !conn.db) {
           setJobs([]);
+          setJobsLoadError(null);
           setHydrated(true);
           return;
         }
@@ -50,12 +54,19 @@ export function JobsProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         if (!res.ok || !Array.isArray(res.rows)) {
           setJobs([]);
+          setJobsLoadError("ไม่สามารถอ่านรายการงานได้ (รูปแบบข้อมูลไม่ถูกต้อง)");
           setHydrated(true);
           return;
         }
+        setJobsLoadError(null);
         setJobs(res.rows.map(mapDbJobRow));
-      } catch {
+      } catch (e) {
         setJobs([]);
+        const msg =
+          e instanceof Error && e.message
+            ? e.message
+            : "โหลดรายการงานไม่สำเร็จ";
+        setJobsLoadError(msg);
       } finally {
         if (!cancelled) setHydrated(true);
       }
@@ -128,10 +139,11 @@ export function JobsProvider({ children }: { children: ReactNode }) {
       jobs,
       dataSource,
       hydrated,
+      jobsLoadError,
       addJob,
       moveJobToStage,
     }),
-    [jobs, dataSource, hydrated, addJob, moveJobToStage]
+    [jobs, dataSource, hydrated, jobsLoadError, addJob, moveJobToStage]
   );
 
   return (

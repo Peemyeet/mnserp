@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getPool, isMissingColumnError } from "../db.mjs";
+import { ensureLookupTables } from "../lib/ensureLookupTables.mjs";
 
 const r = Router();
 
@@ -48,6 +49,7 @@ r.get("/dashboard", async (req, res) => {
     }
 
     const p = getPool();
+    await ensureLookupTables(p);
     const [[urow]] = await p.query(
       `SELECT user_id,
               TRIM(CONCAT(COALESCE(fname,''), ' ', COALESCE(lname,''))) AS fullname

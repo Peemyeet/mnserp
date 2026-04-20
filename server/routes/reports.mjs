@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { getPool, isMissingColumnError } from "../db.mjs";
+import { getPool, isMissingColumnError, isMissingTableError } from "../db.mjs";
+import { ensureLookupTables } from "../lib/ensureLookupTables.mjs";
 
 const r = Router();
 
@@ -41,6 +42,7 @@ function parseFilterUserId(req) {
 r.get("/sales", async (req, res) => {
   try {
     const p = getPool();
+    await ensureLookupTables(p);
     const period = parseSalesPeriod(req);
     const year = parseSalesYear(req);
     const filterUid = parseFilterUserId(req);
@@ -131,64 +133,80 @@ r.get("/sales", async (req, res) => {
       }));
     }
 
-    let wgRows;
-    if (period === "day") {
-      const [rows] = await p.query(
-        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR))) AS wg_name,
-                j.workgroup_id, COUNT(*) AS cnt
-         FROM job_data j
-         LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id
-         WHERE j.recive_job IS NOT NULL AND j.recive_job > '1900-01-01'
-           AND j.recive_job >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
-           ${filterUid == null ? "" : " AND (j.sale_id = ? OR j.user_id = ?)"}
-         GROUP BY j.workgroup_id, wg.wg_name
-         ORDER BY cnt DESC`,
-        filterUid == null ? [] : [filterUid, filterUid]
-      );
-      wgRows = rows;
-    } else if (period === "month") {
-      const [rows] = await p.query(
-        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR))) AS wg_name,
-                j.workgroup_id, COUNT(*) AS cnt
-         FROM job_data j
-         LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id
-         WHERE j.recive_job IS NOT NULL AND j.recive_job > '1900-01-01'
-           AND YEAR(j.recive_job) = ?
-           ${filterUid == null ? "" : " AND (j.sale_id = ? OR j.user_id = ?)"}
-         GROUP BY j.workgroup_id, wg.wg_name
-         ORDER BY cnt DESC`,
-        filterUid == null ? [year] : [year, filterUid, filterUid]
-      );
-      wgRows = rows;
-    } else if (period === "quarter") {
-      const [rows] = await p.query(
-        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR))) AS wg_name,
-                j.workgroup_id, COUNT(*) AS cnt
-         FROM job_data j
-         LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id
-         WHERE j.recive_job IS NOT NULL AND j.recive_job > '1900-01-01'
-           AND YEAR(j.recive_job) = ?
-           ${filterUid == null ? "" : " AND (j.sale_id = ? OR j.user_id = ?)"}
-         GROUP BY j.workgroup_id, wg.wg_name
-         ORDER BY cnt DESC`,
-        filterUid == null ? [year] : [year, filterUid, filterUid]
-      );
-      wgRows = rows;
-    } else {
+    const fetchWorkgroupRows = async (joinWorkgroupTable) => {
+      const wgExpr = joinWorkgroupTable
+        ? "COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR)))"
+        : "CONCAT('WG ', CAST(j.workgroup_id AS CHAR))";
+      const wgJoin = joinWorkgroupTable
+        ? "LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id"
+        : "";
+      const wgGroup = joinWorkgroupTable
+        ? "GROUP BY j.workgroup_id, wg.wg_name"
+        : "GROUP BY j.workgroup_id";
+
+      if (period === "day") {
+        const [rows] = await p.query(
+          `SELECT ${wgExpr} AS wg_name, j.workgroup_id, COUNT(*) AS cnt
+           FROM job_data j
+           ${wgJoin}
+           WHERE j.recive_job IS NOT NULL AND j.recive_job > '1900-01-01'
+             AND j.recive_job >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+             ${filterUid == null ? "" : " AND (j.sale_id = ? OR j.user_id = ?)"}
+           ${wgGroup}
+           ORDER BY cnt DESC`,
+          filterUid == null ? [] : [filterUid, filterUid]
+        );
+        return rows;
+      }
+      if (period === "month") {
+        const [rows] = await p.query(
+          `SELECT ${wgExpr} AS wg_name, j.workgroup_id, COUNT(*) AS cnt
+           FROM job_data j
+           ${wgJoin}
+           WHERE j.recive_job IS NOT NULL AND j.recive_job > '1900-01-01'
+             AND YEAR(j.recive_job) = ?
+             ${filterUid == null ? "" : " AND (j.sale_id = ? OR j.user_id = ?)"}
+           ${wgGroup}
+           ORDER BY cnt DESC`,
+          filterUid == null ? [year] : [year, filterUid, filterUid]
+        );
+        return rows;
+      }
+      if (period === "quarter") {
+        const [rows] = await p.query(
+          `SELECT ${wgExpr} AS wg_name, j.workgroup_id, COUNT(*) AS cnt
+           FROM job_data j
+           ${wgJoin}
+           WHERE j.recive_job IS NOT NULL AND j.recive_job > '1900-01-01'
+             AND YEAR(j.recive_job) = ?
+             ${filterUid == null ? "" : " AND (j.sale_id = ? OR j.user_id = ?)"}
+           ${wgGroup}
+           ORDER BY cnt DESC`,
+          filterUid == null ? [year] : [year, filterUid, filterUid]
+        );
+        return rows;
+      }
       const y0 = year - 4;
       const [rows] = await p.query(
-        `SELECT COALESCE(wg.wg_name, CONCAT('WG ', CAST(j.workgroup_id AS CHAR))) AS wg_name,
-                j.workgroup_id, COUNT(*) AS cnt
+        `SELECT ${wgExpr} AS wg_name, j.workgroup_id, COUNT(*) AS cnt
          FROM job_data j
-         LEFT JOIN workgroup wg ON wg.wg_id = j.workgroup_id
+         ${wgJoin}
          WHERE j.recive_job IS NOT NULL AND j.recive_job > '1900-01-01'
            AND YEAR(j.recive_job) BETWEEN ? AND ?
            ${filterUid == null ? "" : " AND (j.sale_id = ? OR j.user_id = ?)"}
-         GROUP BY j.workgroup_id, wg.wg_name
+         ${wgGroup}
          ORDER BY cnt DESC`,
         filterUid == null ? [y0, year] : [y0, year, filterUid, filterUid]
       );
-      wgRows = rows;
+      return rows;
+    };
+
+    let wgRows;
+    try {
+      wgRows = await fetchWorkgroupRows(true);
+    } catch (e) {
+      if (!isMissingTableError(e)) throw e;
+      wgRows = await fetchWorkgroupRows(false);
     }
 
     const saleVsRepair = (wgRows ?? []).map((row) => ({

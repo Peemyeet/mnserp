@@ -110,3 +110,8 @@ export function isMissingColumnError(err) {
   const c = err?.code;
   return c === "ER_BAD_FIELD_ERROR" || c === "42703";
 }
+
+/** MySQL: ER_NO_SUCH_TABLE เมื่ออ้างอิงตารางที่ยังไม่ถูกสร้าง */
+export function isMissingTableError(err) {
+  return err?.code === "ER_NO_SUCH_TABLE";
+}

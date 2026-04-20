@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getPool } from "../db.mjs";
 import { stageCodeToWsId, wsNameToStageCode } from "../lib/stage.mjs";
+import { ensureLookupTables } from "../lib/ensureLookupTables.mjs";
 
 const r = Router();
 
@@ -11,6 +12,7 @@ r.get("/", async (req, res) => {
     const wsFilter = parseInt(String(req.query.job_status ?? req.query.ws ?? ""), 10);
     const saleFilter = parseInt(String(req.query.sale_id ?? ""), 10);
     const p = getPool();
+    await ensureLookupTables(p);
     const cond = [];
     const qparams = [];
     if (!Number.isNaN(wsFilter) && wsFilter > 0) {
