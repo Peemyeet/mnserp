@@ -33,6 +33,9 @@ async function main() {
       "\n⚠ db: false — ตรวจ DATABASE_URL (mysql://) ใน server/.env และว่า MySQL รับ connection",
     );
     if (body.message) console.error("   ", body.message);
+    if (body.dbDebug && typeof body.dbDebug === "object") {
+      console.error("\n   dbDebug:", JSON.stringify(body.dbDebug, null, 2));
+    }
     process.exit(3);
   }
   console.error("\n✓ ok และ db: true — เชื่อมฐานข้อมูลได้");

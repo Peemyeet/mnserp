@@ -9,16 +9,35 @@ function apiUrl(path: string) {
   return `${API_BASE.replace(/\/$/, "")}${p}`;
 }
 
+export type MnsHealthDbDebug = {
+  mysqlResolvedFrom?: string | null;
+  mysqlUser?: string;
+  mysqlHost?: string;
+  mysqlPort?: number;
+  mysqlDatabase?: string | null;
+  envFileMysqlUser?: string;
+  envFileMysqlHost?: string;
+  hint?: string;
+  mysqlConfigured?: boolean;
+  mysqlUrlParseError?: boolean;
+};
+
 /** ตรวจสอบ /health แบบไม่พึ่ง mnsFetch (กันกรณี response ไม่ใช่ JSON / โปรซีล้ม) */
 export async function getMnsConnection(): Promise<{
   apiOk: boolean;
   db: boolean;
   healthMessage?: string;
+  dbDebug?: MnsHealthDbDebug;
 }> {
   try {
     const res = await fetch(apiUrl("/health"), { method: "GET" });
     const text = await res.text();
-    let data: { ok?: boolean; db?: boolean; message?: string } = {};
+    let data: {
+      ok?: boolean;
+      db?: boolean;
+      message?: string;
+      dbDebug?: MnsHealthDbDebug;
+    } = {};
     try {
       data = JSON.parse(text) as typeof data;
     } catch {
@@ -35,6 +54,10 @@ export async function getMnsConnection(): Promise<{
       apiOk: true,
       db: data.db === true,
       healthMessage: typeof data.message === "string" ? data.message : undefined,
+      dbDebug:
+        typeof data.dbDebug === "object" && data.dbDebug !== null
+          ? data.dbDebug
+          : undefined,
     };
   } catch {
     return { apiOk: false, db: false };

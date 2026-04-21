@@ -82,16 +82,32 @@ app.use("/api/dept-work", deptWork);
 app.use("/api", meta);
 
 if (serveWeb) {
-  app.use(
-    express.static(distPath, {
-      index: "index.html",
-      fallthrough: true,
-    }),
-  );
+  /**
+   * Vite build ค่าเริ่มต้นใช้ base `/pm2026/` — asset เป็น `/pm2026/assets/...`
+   * ต้อง mount static ใต้ prefix นี้ ไม่เช่นนั้น Express หาไฟล์ที่ `dist/pm2026/...` ผิด
+   * และต้องเปิดแอปที่ `/pm2026/` เพื่อให้ตรงกับ React Router basename
+   */
+  const staticOpts = { index: "index.html", fallthrough: true };
+  /** อย่าใช้ app.get('/pm2026') — ใน Express จับทั้ง /pm2026/ ทำให้ redirect วนซ้ำ */
+  app.use((req, res, next) => {
+    if (
+      (req.method === "GET" || req.method === "HEAD") &&
+      req.path === "/pm2026"
+    ) {
+      return res.redirect(302, "/pm2026/");
+    }
+    next();
+  });
+  app.use("/pm2026", express.static(distPath, staticOpts));
+  app.get("/", (_req, res) => res.redirect(302, "/pm2026/"));
+  app.get("/index.html", (_req, res) => res.redirect(302, "/pm2026/"));
   app.use((req, res, next) => {
     if (req.method !== "GET" && req.method !== "HEAD") return next();
     if (req.path.startsWith("/api")) return next();
-    res.sendFile(path.join(distPath, "index.html"));
+    if (req.path === "/pm2026" || req.path.startsWith("/pm2026/")) {
+      return res.sendFile(path.join(distPath, "index.html"));
+    }
+    next();
   });
 }
 
@@ -109,7 +125,9 @@ app.use((err, _req, res, _next) => {
 
 const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`MNS API listening on http://127.0.0.1:${PORT}`);
-  if (serveWeb) console.log(`  Web: static from ${distPath} (รวมเส้นทาง SPA)`);
+  if (serveWeb) {
+    console.log(`  Web: ${distPath} → เปิด http://127.0.0.1:${PORT}/pm2026/ (redirect จาก /)`);
+  }
   console.log(`  DB: GET http://127.0.0.1:${PORT}/api/health (db: true = เชื่อม MySQL ได้ — mysql:// ใน server/.env)`);
   console.log(`  Vite dev: ตั้ง proxy /api → พอร์ตนี้ (ดู vite.config.ts)`);
 });

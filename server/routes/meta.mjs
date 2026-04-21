@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPool } from "../db.mjs";
+import { getPool, getMysqlConnectionDebugSummary } from "../db.mjs";
 
 const r = Router();
 
@@ -44,7 +44,13 @@ r.get("/health", async (_req, res) => {
     await p.query("SELECT 1");
     res.json({ ok: true, db: true });
   } catch (e) {
-    res.json({ ok: true, db: false, message: String(e.message) });
+    res.json({
+      ok: true,
+      db: false,
+      message: String(e.message),
+      /** user/host/แหล่งค่า — ไม่มีรหัสผ่าน; ใช้ไล่กรณีโฮสต์ทับ DATABASE_URL */
+      dbDebug: getMysqlConnectionDebugSummary(),
+    });
   }
 });
 

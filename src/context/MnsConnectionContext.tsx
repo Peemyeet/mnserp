@@ -6,7 +6,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getMnsConnection } from "../services/mnsApi";
+import {
+  getMnsConnection,
+  type MnsHealthDbDebug,
+} from "../services/mnsApi";
 
 export type MnsConnectionState = {
   /** โหลด /health ครั้งแรกเสร็จแล้ว */
@@ -16,6 +19,8 @@ export type MnsConnectionState = {
   /** การ query ใน /health ผ่าน (MySQL) */
   db: boolean;
   message?: string;
+  /** เมื่อ db ล้มเหลว — สรุป user/แหล่งค่า (ไม่มีรหัสผ่าน) */
+  dbDebug?: MnsHealthDbDebug;
 };
 
 const defaultState: MnsConnectionState = {
@@ -39,6 +44,7 @@ export function MnsConnectionProvider({ children }: { children: ReactNode }) {
         apiOk: c.apiOk,
         db: c.db,
         message: c.healthMessage,
+        dbDebug: c.dbDebug,
       });
     })();
     return () => {

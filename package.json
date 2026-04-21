@@ -25,6 +25,7 @@
     "preview:gh": "vite build && vite preview --base /mnserp/",
     "api": "npm run start --prefix server",
     "api:dev": "npm run dev --prefix server",
+    "deploy:pack": "bash scripts/package-enhance-deploy.sh",
     "api:health": "node scripts/check-api-health.mjs",
     "verify:mysql-only": "node scripts/verify-mysql-only.mjs"
   },

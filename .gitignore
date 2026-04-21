@@ -8,3 +8,4 @@ server/.env
 api/v1/config.local.php
 migrate.env
 database/mns_pm_2021.sql
+erp-mns-deploy-*.tar.gz

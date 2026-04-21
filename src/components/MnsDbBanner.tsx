@@ -44,6 +44,20 @@ export function MnsDbBanner() {
           (ไฟล์ <span className="font-mono">.env</span> มักไม่ถูก push ต้องอัปโหลดแยก)
         </p>
       ) : null}
+      {conn.message?.includes("Access denied for user") ? (
+        <p className="mt-1 text-[11px] text-rose-800">
+          MySQL ปฏิเสธสิทธิ์จาก IP นี้ — ตรวจ user/password ใน{" "}
+          <span className="font-mono">server/.env</span> และเปิด Remote MySQL (หรือรัน API บนโฮสต์เดียวกับฐาน)
+        </p>
+      ) : null}
+      {conn.dbDebug?.hint ? (
+        <p className="mt-1 text-[11px] text-rose-900">{conn.dbDebug.hint}</p>
+      ) : conn.dbDebug?.mysqlUser ? (
+        <p className="mt-1 font-mono text-[10px] text-rose-800">
+          แอปใช้ MySQL: user={conn.dbDebug.mysqlUser} host={conn.dbDebug.mysqlHost ?? "?"}{" "}
+          (แหล่งค่า: {String(conn.dbDebug.mysqlResolvedFrom ?? "?")})
+        </p>
+      ) : null}
     </div>
   );
 }
